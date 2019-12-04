@@ -1,0 +1,83 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#EEEEEE">
+
+    <ImageView
+        android:contentDescription="@string/cc_logo"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/app_banner"
+        android:layout_above="@id/login_card"
+        android:scaleType="fitCenter"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/login_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp">
+
+        <FrameLayout
+            android:layout_gravity="center"
+            android:id="@+id/frame_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="@drawable/shape"
+        android:layout_marginStart="20dp"
+        android:paddingTop="20dp"
+        app:elevation="8dp"
+        android:layout_marginEnd="20dp">
+
+
+        <TextView
+            android:id="@+id/tv_privacy_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/raleway_medium"
+            android:text="@string/privacy_warning" />
+
+        <TextView
+            android:id="@+id/tv_user_registration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/raleway_medium"
+            android:text="@string/user_registration"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/tv_privacy_warning"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:textColor="@color/colorPrimary"
+            tools:ignore="SpUsage" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/privacy_policy"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="@font/raleway_medium"
+            android:layout_below="@id/tv_user_registration"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            tools:ignore="SpUsage"
+            android:textColor="@color/colorPrimary" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

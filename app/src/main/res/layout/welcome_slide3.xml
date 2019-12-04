@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient4">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/important_concepts"
+        android:layout_above="@id/circle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp"
+        android:textColor="#3C31A7"
+        android:textSize="35sp"
+        android:fontFamily="@font/asphalt_brush_font"
+        android:textAllCaps="true"/>
+
+
+    <ImageView
+        android:contentDescription="@string/background_image"
+        android:id="@+id/circle"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/circle_yellow" />
+
+    <ImageView
+        android:contentDescription="@string/background_image"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/important_concepts_intro"/>
+
+    <TextView
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="167dp"
+        android:fontFamily="@font/raleway_bold"
+        android:text="@string/welcome_text3"
+        android:textColor="#3C31A7"
+        />
+</RelativeLayout>

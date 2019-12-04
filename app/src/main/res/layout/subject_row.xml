@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<in.completecourse.utils.CarouselLinearLayout
+    android:gravity="center"
+    android:orientation="vertical"
+    android:id="@+id/root_container"
+    android:background="@android:color/transparent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:contentDescription="@string/subject_image"
+        android:id="@+id/imgLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_home_physics"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:textSize="@dimen/font_20"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:id="@+id/pager_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/raleway"
+        tools:text="Subject Name" />
+
+</in.completecourse.utils.CarouselLinearLayout>

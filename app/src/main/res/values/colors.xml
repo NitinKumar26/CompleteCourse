@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#e6078c</color>
+    <color name="colorPrimaryDark">#ae005f</color>
+    <color name="colorAccent">#000000</color>
+    <color name="colorAccentDark">#000000</color>
+
+    <!-- dots inactive colors -->
+    <color name="dot_dark_screen1">#1D93F1</color>
+    <color name="dot_dark_screen2">#725cd9</color>
+    <color name="dot_dark_screen3">#D75B89</color>
+    <color name="dot_dark_screen4">#ffa18f</color>
+
+    <!-- dots active colors -->
+    <color name="dot_light_screen1">#FFFFFF</color>
+    <color name="dot_light_screen2">#3C31A7</color>
+    <color name="dot_light_screen3">#ffffff</color>
+    <color name="dot_light_screen4">#fe6f61</color>
+
+    <array name="array_dot_active">
+        <item>@color/dot_light_screen1</item>
+        <item>@color/dot_light_screen2</item>
+        <item>@color/dot_light_screen3</item>
+        <item>@color/dot_light_screen4</item>
+    </array>
+
+    <array name="array_dot_inactive">
+        <item>@color/dot_dark_screen1</item>
+        <item>@color/dot_dark_screen2</item>
+        <item>@color/dot_dark_screen3</item>
+        <item>@color/dot_dark_screen4</item>
+    </array>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorExcellentBookText">#2a2a2a</color>
+    <color name="colorTabUnSelect">#5bf5a5</color>
+    <color name="colorTabbackground">#009e4e</color>
+    <color name="common_google_signin_btn_text_dark_default">@android:color/white</color>
+    <color name="common_google_signin_btn_text_dark_disabled">#1f000000</color>
+    <color name="common_google_signin_btn_text_dark_focused">@android:color/black</color>
+    <color name="common_google_signin_btn_text_dark_pressed">@android:color/white</color>
+    <color name="common_google_signin_btn_text_light_default">#90000000</color>
+    <color name="common_google_signin_btn_text_light_disabled">#1f000000</color>
+    <color name="common_google_signin_btn_text_light_focused">#90000000</color>
+    <color name="common_google_signin_btn_text_light_pressed">#de000000</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="white_transparent">#88ffffff</color>
+
+</resources>

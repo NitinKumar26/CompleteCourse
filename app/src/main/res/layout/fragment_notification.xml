@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/progress_bar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"/>
+    
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_notification"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:background="#ffffff"
+        android:visibility="gone"
+        android:id="@+id/empty_layout"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <ImageView
+        android:contentDescription="@string/empty_icon"
+        android:id="@+id/empty_icon"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:srcCompat="@drawable/ic_notification_empty"
+        android:layout_centerInParent="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/empty_icon"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="12dp"
+        android:text="@string/no_notifications"
+        android:textSize="14sp"
+        android:textColor="#bcbcbc"/>
+
+    </RelativeLayout>
+</RelativeLayout>
