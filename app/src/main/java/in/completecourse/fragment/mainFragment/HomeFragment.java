@@ -59,7 +59,91 @@ public class HomeFragment extends Fragment {
         //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == 100 && data != null){
             urlQR = data.getStringExtra("url");
-            new GetBookName(HomeFragment.this).execute();
+            if (urlQR != null) {
+                Intent intent = new Intent(getContext(), SubjectActivity.class);
+                switch (urlQR){
+                    case "http://completecourse.in/api/GetQRValue/4/1":
+                        intent.putExtra("classCode", "4");
+                        intent.putExtra("subjectCode", "1");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/4/4":
+                        intent.putExtra("classCode", "4");
+                        intent.putExtra("subjectCode", "4");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/1/2":
+                        intent.putExtra("classCode", "1");
+                        intent.putExtra("subjectCode", "2");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/1/3":
+                        intent.putExtra("classCode", "1");
+                        intent.putExtra("subjectCode", "3");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/2/7":
+                        intent.putExtra("classCode", "2");
+                        intent.putExtra("subjectCode", "7");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/2/9":
+                        intent.putExtra("classCode", "2");
+                        intent.putExtra("subjectCode", "9");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/2/11":
+                        intent.putExtra("classCode", "2");
+                        intent.putExtra("subjectCode", "11");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/2/5":
+                        intent.putExtra("classCode", "2");
+                        intent.putExtra("subjectCode","5");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/3/8":
+                        intent.putExtra("classCode", "3");
+                        intent.putExtra("subjectCode", "8");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/3/10":
+                        intent.putExtra("classCode", "3");
+                        intent.putExtra("subjectCode", "10");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/3/12":
+                        intent.putExtra("classCode", "3");
+                        intent.putExtra("subjectCode", "12");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/3/6":
+                        intent.putExtra("classCode", "3");
+                        intent.putExtra("subjectCode", "6");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/4/16":
+                        intent.putExtra("classCode", "4");
+                        intent.putExtra("subjectCode", "16");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/4/15":
+                        intent.putExtra("classCode", "4");
+                        intent.putExtra("subjectCode", "15");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/1/13":
+                        intent.putExtra("classCode", "1");
+                        intent.putExtra("subjectCode", "15");
+                        startActivity(intent);
+                        break;
+                    case "http://completecourse.in/api/GetQRValue/1/14":
+                        intent.putExtra("classCode", "1");
+                        intent.putExtra("subjectCode", "14");
+                        startActivity(intent);
+                        break;
+                }
+            }
         }
     }
 
