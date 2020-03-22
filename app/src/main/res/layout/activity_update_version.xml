@@ -31,7 +31,7 @@
         ads:adSize="MEDIUM_RECTANGLE"
         android:layout_above="@id/linear_bottom"
         android:layout_marginBottom="12dp"
-        ads:adUnitId="ca-app-pub-4214231949040116/2297039242"/>
+        ads:adUnitId="@string/banner_ad_unit"/>
 
 
     <LinearLayout

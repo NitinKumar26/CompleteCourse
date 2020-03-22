@@ -1,50 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layout for a single list item -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="88dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:minHeight="88dp"
+    >
 
+    <TextView
+        android:id="@+id/serial_notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@android:color/black"
+        android:fontFamily="@font/raleway"
+        tools:text="1. " />
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/notification_head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:fontFamily="@font/raleway"
+        android:layout_toEndOf="@id/serial_notification"
+        tools:text="lutti" />
 
-        <TextView
-            android:id="@+id/serial_notification"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/black"
-            android:fontFamily="@font/raleway"
-            tools:text="1. " />
+    <TextView
+        android:id="@+id/notification_subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/notification_head"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/raleway"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@android:color/black"
+        tools:text="one" />
 
-        <TextView
-            android:id="@+id/notification_head"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:fontFamily="@font/raleway"
-            android:layout_toEndOf="@id/serial_notification"
-            tools:text="lutti" />
-
-        <TextView
-            android:id="@+id/notification_subhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/notification_head"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/raleway"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:textColor="@android:color/black"
-            tools:text="one" />
-
-    </RelativeLayout>
 </RelativeLayout>

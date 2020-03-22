@@ -5,15 +5,12 @@
     <string name="start">GOT IT</string>
     <string name="rupees">₹</string>
     <string name="new_arrivals">New Arrivals</string>
-    <string name="login">Login</string>
     <string name="privacy_warning">By registering you agree to</string>
     <string name="user_registration">User registration terms</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="name">Name</string>
     <string name="mobile_number">Mobile Number</string>
-    <string name="send_verification_code">Send Otp</string>
     <string name="home">Home</string>
-    <string name="notification">Notification</string>
     <string name="company_image">ग्रिड छवि</string>
     <string name="text_chemistry">रसायन विज्ञान</string>
     <string name="text_mathematics">गणित</string>

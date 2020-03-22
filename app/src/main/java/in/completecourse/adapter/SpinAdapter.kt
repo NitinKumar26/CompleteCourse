@@ -1,5 +1,6 @@
 package `in`.completecourse.adapter
 
+import `in`.completecourse.R
 import android.content.Context
 import android.text.Html
 import android.view.LayoutInflater
@@ -9,9 +10,9 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 
 class SpinAdapter(context: Context, resource: Int, strArr: Array<String>) : ArrayAdapter<String?>(context, resource, 0, strArr) {
-    private val mLayoutInflater: LayoutInflater
-    private val mStringArray: Array<String>
-    private val mResource: Int
+    private val mLayoutInflater: LayoutInflater = LayoutInflater.from(context)
+    private val mStringArray: Array<String> = strArr
+    private val mResource: Int = resource
     private fun homeView(i: Int, viewGroup: ViewGroup): View {
         val inflate = mLayoutInflater.inflate(mResource, viewGroup, false)
         (inflate.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[i] +
@@ -32,9 +33,4 @@ class SpinAdapter(context: Context, resource: Int, strArr: Array<String>) : Arra
         return homeView(position, parent)
     }
 
-    init {
-        mLayoutInflater = LayoutInflater.from(context)
-        mResource = resource
-        mStringArray = strArr
-    }
 }

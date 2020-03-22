@@ -1,8 +1,14 @@
 package `in`.completecourse.fragment.mainFragment
 
+import `in`.completecourse.R
+import `in`.completecourse.ScanActivity
+import `in`.completecourse.SearchActivity
+import `in`.completecourse.SubjectActivity
 import `in`.completecourse.adapter.ImageAdapter
-import `in`.completecourse.fragment.mainFragment.HomeFragment
-import `in`.completecourse.helper.HttpHandler
+import `in`.completecourse.adapter.SliderAdapter
+import `in`.completecourse.app.AppConfig
+import `in`.completecourse.helper.HelperMethods
+import `in`.completecourse.model.CardModel
 import `in`.completecourse.model.Update
 import android.content.Intent
 import android.os.AsyncTask
@@ -15,8 +21,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -29,10 +35,10 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class HomeFragment : Fragment() {
-    private var mViewPager: ViewPager? = null
+class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     private var updateList: ArrayList<Update>? = null
     private var sliderAdapter: SliderAdapter? = null
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == 100 && data != null) {
@@ -133,7 +139,6 @@ class HomeFragment : Fragment() {
         val cardList: ArrayList<CardModel> = ArrayList<CardModel>()
         cardList.add(CardModel(R.drawable.manual_search, "Manual Search"))
         cardList.add(CardModel(R.drawable.scan_qr, "Scan QR Code"))
-        mViewPager = view.findViewById(R.id.viewPager)
         val indicator: TabLayout = view.findViewById(R.id.indicator)
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.setHasFixedSize(true)
@@ -144,22 +149,12 @@ class HomeFragment : Fragment() {
         //specify an adapter
         val recyclerViewAdapter = ImageAdapter(cardList, context!!)
         recyclerView.adapter = recyclerViewAdapter
-        recyclerView.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, ImageAdapter.ClickListener { position: Int ->
-            when (position) {
-                0 -> {
-                    val searchActivityIntent = Intent(context, SearchActivity::class.java)
-                    startActivity(searchActivityIntent)
-                }
-                1 -> {
-                    val qrCodeActivityIntent = Intent(context, ScanActivity::class.java)
-                    startActivityForResult(qrCodeActivityIntent, 100)
-                }
-            }
-        }))
+        recyclerView.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, this))
+
         updateList = ArrayList()
-        sliderAdapter = SliderAdapter(activity, updateList)
-        mViewPager.setAdapter(sliderAdapter)
-        indicator.setupWithViewPager(mViewPager, true)
+        sliderAdapter = SliderAdapter(activity, updateList!!)
+        viewPager.adapter = sliderAdapter
+        indicator.setupWithViewPager(viewPager, true)
         val timer = Timer()
         timer.scheduleAtFixedRate(SliderTimer(), 4000, 6000)
         if (HelperMethods.isNetworkAvailable(activity)) {
@@ -174,70 +169,24 @@ class HomeFragment : Fragment() {
         override fun run() {
             if (activity != null) {
                 activity!!.runOnUiThread {
-                    if (mViewPager!!.currentItem < updateList!!.size - 1) {
-                        mViewPager!!.currentItem = mViewPager!!.currentItem + 1
+                    if (viewPager.currentItem < updateList!!.size - 1) {
+                        viewPager.currentItem = viewPager.currentItem + 1
                     } else {
-                        mViewPager!!.currentItem = 0
+                        viewPager.currentItem = 0
                     }
                 }
             }
-        }
-    }
-
-    private class GetBookName internal constructor(context: HomeFragment) : AsyncTask<Void?, Void?, Void?>() {
-        private val activityWeakReference: WeakReference<HomeFragment>
-        protected override fun doInBackground(vararg arg0: Void): Void? {
-            val activity = activityWeakReference.get()
-            val sh = HttpHandler()
-            val url = urlQR
-            val jsonStr = sh.makeServiceCall(url)
-            if (jsonStr != null) {
-                try {
-                    val jsonObject = JSONObject(jsonStr)
-                    val studentSubject = jsonObject.getString("studentsubject")
-                    val studentClass = jsonObject.getString("studentclass")
-                    val intent = Intent(activity!!.activity, SubjectActivity::class.java)
-                    intent.putExtra("classCode", studentClass)
-                    intent.putExtra("subjectCode", studentSubject)
-                    activity.startActivity(intent)
-                } catch (e: JSONException) {
-                    if (activity!!.activity != null) {
-                        activity.activity!!.runOnUiThread {
-                            Toast.makeText(activity.context,
-                                            "Json parsing error: " + e.message,
-                                            Toast.LENGTH_LONG)
-                                    .show()
-                        }
-                    }
-                }
-            } else {
-                if (activity!!.activity != null) {
-                    activity.activity!!.runOnUiThread {
-                        Toast.makeText(activity.context, "Couldn't get json from server. Check LogCat for possible errors!",
-                                        Toast.LENGTH_LONG)
-                                .show()
-                    }
-                }
-            }
-            return null
-        }
-
-        override fun onPostExecute(result: Void?) {
-            super.onPostExecute(result)
-        }
-
-        init {
-            activityWeakReference = WeakReference(context)
         }
     }
 
     internal class JSONTransmitter(context: HomeFragment) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<HomeFragment>
+        private val activityWeakReference: WeakReference<HomeFragment> = WeakReference(context)
+
         override fun onPreExecute() {
             val activity = activityWeakReference.get()
         }
 
-        protected override fun doInBackground(vararg params: String): String? {
+        override fun doInBackground(vararg params: String?): String? {
             val activity = activityWeakReference.get()
             val urlString: String = AppConfig.URL_UPDATES
             val url: URL
@@ -246,7 +195,7 @@ class HomeFragment : Fragment() {
             try {
                 url = URL(urlString)
                 urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection!!.requestMethod = "GET"
+                urlConnection.requestMethod = "GET"
                 urlConnection.doOutput = true
                 urlConnection.connect()
                 stream = urlConnection.inputStream
@@ -266,9 +215,9 @@ class HomeFragment : Fragment() {
                             val dataObject = jsonArray.getJSONObject(i)
                             update = Update(dataObject.getString("name"), dataObject.getString("imageurl"))
                             activity!!.updateList!!.add(update)
-                            activity.sliderAdapter.setItems(activity.updateList)
+                            activity.sliderAdapter!!.setItems(activity.updateList)
                             if (activity.activity != null) {
-                                activity.activity!!.runOnUiThread { activity.sliderAdapter.notifyDataSetChanged() }
+                                activity.activity!!.runOnUiThread { activity.sliderAdapter!!.notifyDataSetChanged() }
                             }
                         }
                     } else {
@@ -297,12 +246,22 @@ class HomeFragment : Fragment() {
 
         override fun onPostExecute(jsonObject: String?) {}
 
-        init {
-            activityWeakReference = WeakReference(context)
-        }
     }
 
     companion object {
         private var urlQR: String? = null
+    }
+
+    override fun onClick(position: Int) {
+        when (position) {
+            0 -> {
+                val searchActivityIntent = Intent(context, SearchActivity::class.java)
+                startActivity(searchActivityIntent)
+            }
+            1 -> {
+                val qrCodeActivityIntent = Intent(context, ScanActivity::class.java)
+                startActivityForResult(qrCodeActivityIntent, 100)
+            }
+        }
     }
 }

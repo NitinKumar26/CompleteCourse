@@ -1,29 +1,34 @@
 package `in`.completecourse.adapter
 
+import `in`.completecourse.R
+import `in`.completecourse.SubjectActivity
+import `in`.completecourse.fragment.ItemFragment
+import `in`.completecourse.utils.CarouselLinearLayout
+import `in`.completecourse.utils.ListConfig
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import kotlinx.android.synthetic.main.activity_subject.*
 
-class CarouselPagerAdapter(context: SubjectActivity, private val fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
-    private val context: SubjectActivity
+class CarouselPagerAdapter(private val context: SubjectActivity, private val fragmentManager: FragmentManager, private val classString:String?) : FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
     private var scale = 0f
     override fun getItem(position: Int): Fragment {
         // make the first pager bigger than others
         var position = position
         try {
             scale = if (position == SubjectActivity.FIRST_PAGE) BIG_SCALE else SMALL_SCALE
-            if (SubjectActivity.classString.equals("4", ignoreCase = true) ||
-                    SubjectActivity.classString.equals("1", ignoreCase = true)) {
-                position = position % ListConfig.subjectHighSchool.size
+            position %= if (classString.equals("4", ignoreCase = true) ||
+                    classString.equals("1", ignoreCase = true)) {
+                ListConfig.subjectHighSchool.size
             } else {
-                position = position % SubjectActivity.count
+                SubjectActivity.count
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return ItemFragment.newInstance(context, position, scale)
+        return ItemFragment.newInstance(context, position, scale, classString)
     }
 
     override fun getCount(): Int {
@@ -39,7 +44,7 @@ class CarouselPagerAdapter(context: SubjectActivity, private val fragmentManager
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
         try {
-            if (positionOffset >= 0f && positionOffset <= 1f) {
+            if (positionOffset in 0f..1f) {
                 val cur: CarouselLinearLayout = getRootView(position)
                 val next: CarouselLinearLayout = getRootView(position + 1)
                 cur.setScaleBoth(BIG_SCALE - DIFF_SCALE * positionOffset)
@@ -54,11 +59,11 @@ class CarouselPagerAdapter(context: SubjectActivity, private val fragmentManager
     override fun onPageScrollStateChanged(state: Int) {}
     private fun getRootView(position: Int): CarouselLinearLayout {
         return fragmentManager.findFragmentByTag(getFragmentTag(position))
-                .getView()!!.findViewById<View>(R.id.root_container) as CarouselLinearLayout
+                ?.view!!.findViewById<View>(R.id.root_container) as CarouselLinearLayout
     }
 
     private fun getFragmentTag(position: Int): String {
-        return "android:switcher:" + SubjectActivity.subjectViewPager.getId() + ":" + position
+        return "android:switcher:" + context.viewpagerr.id + ":" + position
     }
 
     companion object {
@@ -67,7 +72,4 @@ class CarouselPagerAdapter(context: SubjectActivity, private val fragmentManager
         private const val DIFF_SCALE = BIG_SCALE - SMALL_SCALE
     }
 
-    init {
-        this.context = context
-    }
 }

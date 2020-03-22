@@ -1,5 +1,9 @@
 package `in`.completecourse.fragment
 
+import `in`.completecourse.R
+import `in`.completecourse.utils.CarouselLinearLayout
+import `in`.completecourse.utils.ListConfig
+import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -19,35 +23,32 @@ class ItemFragment : Fragment() {
         return if (container == null) {
             null
         } else inflater.inflate(R.layout.subject_row, container, false)
-
-        //LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(screenWidth / 2, screenHeight / 2);
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        assert(this.arguments != null)
-        val position = this.arguments!!.getInt(POSITION)
-        val scale = this.arguments!!.getFloat(SCALE)
+        val position = arguments!!.getInt(POSITION)
+        val scale = arguments!!.getFloat(SCALE)
+        val classString = arguments?.getString(CLASSSTRING)
         val textView = view.findViewById<TextView>(R.id.pager_textview)
         val root: CarouselLinearLayout = view.findViewById(R.id.root_container)
         val imageView = view.findViewById<ImageView>(R.id.imgLogo)
-        if (SubjectActivity.classString.equals("4", ignoreCase = true) ||
-                SubjectActivity.classString.equals("1", ignoreCase = true)) {
-            textView.setText(ListConfig.subjectHighSchool.get(position))
-            imageView.setImageResource(ListConfig.imagesHighSchool.get(position))
-        } else if (SubjectActivity.classString.equals("2", ignoreCase = true) ||
-                SubjectActivity.classString.equals("3", ignoreCase = true)) {
-            textView.setText(ListConfig.subjectIntermediate.get(position))
-            imageView.setImageResource(ListConfig.imagesIntermediate.get(position))
+
+        if (classString.equals("4", ignoreCase = true) || classString.equals("1", ignoreCase = true)) {
+            textView.text = ListConfig.subjectHighSchool[position]
+            imageView.setImageResource(ListConfig.imagesHighSchool[position])
+        } else if (classString.equals("2", ignoreCase = true) || classString.equals("3", ignoreCase = true)) {
+            textView.text = ListConfig.subjectIntermediate[position]
+            imageView.setImageResource(ListConfig.imagesIntermediate[position])
         }
+
         root.setScaleBoth(scale)
     }
 
     /**
      * Get device screen width and height
      */
-    private val widthAndHeight: Unit
-        private get() {
+    private val widthAndHeight: Unit get() {
             val displaymetrics = DisplayMetrics()
             if (activity != null) {
                 activity!!.windowManager.defaultDisplay.getMetrics(displaymetrics)
@@ -60,10 +61,14 @@ class ItemFragment : Fragment() {
         private const val POSITION = "position"
         private const val SCALE = "scale"
         private const val DRAWABLE_RESOURE = "resource"
-        fun newInstance(context: SubjectActivity?, pos: Int, scale: Float): Fragment {
+        private const val CLASSSTRING = "classString"
+
+
+        fun newInstance(context: Context, pos: Int, scale: Float, classString:String?): Fragment {
             val b = Bundle()
             b.putInt(POSITION, pos)
             b.putFloat(SCALE, scale)
+            b.putString(CLASSSTRING, classString)
             return instantiate(context, ItemFragment::class.java.name, b)
         }
     }

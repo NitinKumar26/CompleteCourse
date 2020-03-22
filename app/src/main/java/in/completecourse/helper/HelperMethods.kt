@@ -1,5 +1,6 @@
 package `in`.completecourse.helper
 
+import `in`.completecourse.R
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
@@ -61,9 +62,7 @@ object HelperMethods {
         var activeNetworkInfo: NetworkInfo? = null
         if (activity != null) {
             val connectivityManager = activity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            if (connectivityManager != null) {
-                activeNetworkInfo = connectivityManager.activeNetworkInfo
-            }
+            activeNetworkInfo = connectivityManager.activeNetworkInfo
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }

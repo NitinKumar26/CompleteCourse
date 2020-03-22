@@ -9,8 +9,8 @@ class CarouselLinearLayout : LinearLayout {
     /* renamed from: a */
     private var scale = 1.0f
 
-    constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, attributeSet: AttributeSet?) : super(context, attributeSet) {}
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attributeSet: AttributeSet?) : super(context, attributeSet)
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)

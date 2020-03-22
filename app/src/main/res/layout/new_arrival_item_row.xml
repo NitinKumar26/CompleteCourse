@@ -60,7 +60,6 @@
                 tools:ignore="SpUsage"/>
 
             <TextView
-                android:id="@+id/ruppee_sign"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/title"

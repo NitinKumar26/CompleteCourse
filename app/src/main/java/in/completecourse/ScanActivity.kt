@@ -9,7 +9,9 @@ import info.androidhive.barcode.BarcodeReader
 import info.androidhive.barcode.BarcodeReader.BarcodeReaderListener
 
 class ScanActivity : AppCompatActivity(), BarcodeReaderListener {
+
     private var barcodeReader: BarcodeReader? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)

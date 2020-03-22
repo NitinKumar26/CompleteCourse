@@ -1,5 +1,8 @@
 package `in`.completecourse
 
+import `in`.completecourse.adapter.CompetitionUpdatesAdapter
+import `in`.completecourse.app.AppConfig
+import `in`.completecourse.model.UpdateItem
 import android.app.ProgressDialog
 import android.os.AsyncTask
 import android.os.Bundle
@@ -8,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_dialog.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
@@ -20,15 +24,14 @@ import java.util.*
 
 class CompetitionUpdatesActivity : AppCompatActivity() {
     private var pDialog: ProgressDialog? = null
-    private var updatesList: ArrayList<UpdateItem?>? = null
+    private var updatesList: ArrayList<UpdateItem>? = null
     private var adapter: CompetitionUpdatesAdapter? = null
-    private var recyclerView: RecyclerView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dialog)
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.setLayoutManager(LinearLayoutManager(this, RecyclerView.VERTICAL, false))
-        val classStringFinal = SubjectActivity.classString
+        recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        val classStringFinal = intent.getStringExtra("class")
         val dataObj = arrayOfNulls<String>(1)
         dataObj[0] = classStringFinal
         val getUpdates = GetUpdates(this@CompetitionUpdatesActivity)
@@ -36,8 +39,9 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
     }
 
     private class GetUpdates internal constructor(context: CompetitionUpdatesActivity) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<CompetitionUpdatesActivity>
+        private val activityWeakReference: WeakReference<CompetitionUpdatesActivity> = WeakReference(context)
         var item: UpdateItem? = null
+
         override fun onPreExecute() {
             val activity = activityWeakReference.get()
             activity!!.pDialog = ProgressDialog(activity)
@@ -46,8 +50,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
             activity.pDialog!!.show()
         }
 
-        protected override fun doInBackground(vararg params: String): String? {
-            //final CompetitionUpdatesActivity activity = activityWeakReference.get();
+        override fun doInBackground(vararg params: String?): String? {
             val activity = activityWeakReference.get()
             val urlString: String = AppConfig.URL_COMPETITION_UPDATES
             val studentclass = params[0]
@@ -57,7 +60,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
             try {
                 url = URL(urlString)
                 urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection!!.requestMethod = "POST"
+                urlConnection.requestMethod = "POST"
                 urlConnection.doOutput = true
                 val data = (URLEncoder.encode("classid", "UTF-8")
                         + "=" + URLEncoder.encode(studentclass, "UTF-8"))
@@ -70,7 +73,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
                 val resFromServer = reader.readLine()
                 val status: String
                 val jsonResponse: JSONObject
-                activity!!.updatesList = ArrayList<UpdateItem?>()
+                activity!!.updatesList = ArrayList<UpdateItem>()
                 try {
                     jsonResponse = JSONObject(resFromServer)
                     //Log.e("chatpterItem", String.valueOf(jsonResponse));
@@ -81,11 +84,11 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
                         for (i in 0 until jsonArray.length()) {
                             item = UpdateItem()
                             val chapterObject = jsonArray.getJSONObject(i)
-                            item.setUpdateKaName(chapterObject.getString("comptkanaam"))
-                            item.setUpdateKaLink(chapterObject.getString("referencelink"))
-                            item.setUpdateKaDesc(chapterObject.getString("details"))
-                            item.setSerialNumber((i + 1).toString() + ".")
-                            activity.updatesList!!.add(item)
+                            item!!.updateKaName = chapterObject.getString("comptkanaam")
+                            item!!.updateKaLink = chapterObject.getString("referencelink")
+                            item!!.updateKaDesc = chapterObject.getString("details")
+                            item!!.serialNumber = (i + 1).toString() + "."
+                            activity.updatesList!!.add(item!!)
                         }
                     } else {
                         val msg = jsonResponse.getString("message")
@@ -118,8 +121,5 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
             activity.recyclerView!!.adapter = activity.adapter
         }
 
-        init {
-            activityWeakReference = WeakReference(context)
-        }
     }
 }

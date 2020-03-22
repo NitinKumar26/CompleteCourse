@@ -13,6 +13,7 @@ import com.google.android.youtube.player.YouTubePlayerView
 
 class VideoActivity : YouTubeBaseActivity(), YouTubePlayer.OnInitializedListener {
     private var videoID: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -58,7 +59,7 @@ class VideoActivity : YouTubeBaseActivity(), YouTubePlayer.OnInitializedListener
     }
 
     private val youTubePlayerProvider: YouTubePlayer.Provider
-        private get() = findViewById<View>(R.id.youtube_view) as YouTubePlayerView
+        get() = findViewById<View>(R.id.youtube_view) as YouTubePlayerView
 
     companion object {
         private const val RECOVERY_DIALOG_REQUEST = 1

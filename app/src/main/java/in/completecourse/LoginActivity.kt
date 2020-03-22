@@ -1,18 +1,17 @@
 package `in`.completecourse
 
+import `in`.completecourse.fragment.authFragment.EasyLoginFragment
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
-class LoginActivity : AppCompatActivity(), View.OnClickListener {
+class LoginActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         loadFragment(EasyLoginFragment())
     }
-
-    override fun onClick(v: View) {}
 
     /**
      * loading fragment into FrameLayout
@@ -24,4 +23,5 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         transaction.replace(R.id.frame_container, fragment)
         transaction.commit()
     }
+
 }

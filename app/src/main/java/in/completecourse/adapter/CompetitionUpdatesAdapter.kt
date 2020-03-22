@@ -1,5 +1,8 @@
 package `in`.completecourse.adapter
 
+import `in`.completecourse.PDFActivity
+import `in`.completecourse.R
+import `in`.completecourse.model.UpdateItem
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -9,8 +12,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class CompetitionUpdatesAdapter(private val context: Context, list: ArrayList<UpdateItem>) : RecyclerView.Adapter<UpdatesViewHolder>() {
-    private val updateItemsArrayList: ArrayList<UpdateItem>
+class CompetitionUpdatesAdapter(private val context: Context, list: ArrayList<UpdateItem>?) : RecyclerView.Adapter<CompetitionUpdatesAdapter.UpdatesViewHolder>() {
+    private val updateItemsArrayList: ArrayList<UpdateItem> = list!!
+
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): UpdatesViewHolder {
         val inflater = LayoutInflater.from(context)
         val view: View = inflater.inflate(R.layout.competition_update_item, viewGroup, false)
@@ -19,12 +23,11 @@ class CompetitionUpdatesAdapter(private val context: Context, list: ArrayList<Up
 
     override fun onBindViewHolder(updatesViewHolder: UpdatesViewHolder, i: Int) {
         val updateItem: UpdateItem = updateItemsArrayList[i]
-        updatesViewHolder.titleText.setText(updateItem.getUpdateKaName())
-        updatesViewHolder.descText.setText(updateItem.getUpdateKaDesc())
-        updatesViewHolder.serialText.setText(updateItem.getSerialNumber())
+        updatesViewHolder.titleText.text = updateItem.updateKaName
+        updatesViewHolder.descText.text = updateItem.updateKaDesc
+        updatesViewHolder.serialText.text = updateItem.serialNumber
 
-        //updatesViewHolder.titleText.setTypeface(Typeface.createFromAsset(context.getAssets(),"fonts/Hindi.ttf"));
-        updatesViewHolder.titleText.setOnClickListener { v: View? ->
+        updatesViewHolder.titleText.setOnClickListener {
             if (updatesViewHolder.descText.visibility == View.GONE) {
                 updatesViewHolder.descText.visibility = View.VISIBLE
                 updatesViewHolder.knowMoreText.visibility = View.VISIBLE
@@ -35,7 +38,7 @@ class CompetitionUpdatesAdapter(private val context: Context, list: ArrayList<Up
         }
         updatesViewHolder.knowMoreText.setOnClickListener { v: View ->
             val intent = Intent(context, PDFActivity::class.java)
-            intent.putExtra("url", updateItem.getUpdateKaLink())
+            intent.putExtra("url", updateItem.updateKaLink)
             v.context.startActivity(intent)
         }
     }
@@ -44,21 +47,12 @@ class CompetitionUpdatesAdapter(private val context: Context, list: ArrayList<Up
         return updateItemsArrayList.size
     }
 
-    internal inner class UpdatesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val serialText: TextView
-        val titleText: TextView
-        val descText: TextView
-        val knowMoreText: TextView
+    inner class UpdatesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val serialText: TextView = itemView.findViewById(R.id.text_serial_number)
+        val titleText: TextView = itemView.findViewById(R.id.textUpdateTitle)
+        val descText: TextView = itemView.findViewById(R.id.desc)
+        val knowMoreText: TextView = itemView.findViewById(R.id.know_more)
 
-        init {
-            serialText = itemView.findViewById(R.id.text_serial_number)
-            titleText = itemView.findViewById(R.id.textUpdateTitle)
-            descText = itemView.findViewById(R.id.desc)
-            knowMoreText = itemView.findViewById(R.id.know_more)
-        }
     }
 
-    init {
-        updateItemsArrayList = list
-    }
 }

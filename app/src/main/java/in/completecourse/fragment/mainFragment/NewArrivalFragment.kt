@@ -1,7 +1,11 @@
 package `in`.completecourse.fragment.mainFragment
 
+import `in`.completecourse.PDFActivity
+import `in`.completecourse.R
 import `in`.completecourse.adapter.NewArrivalAdapter
+import `in`.completecourse.app.AppConfig
 import `in`.completecourse.helper.HttpHandler
+import `in`.completecourse.model.BookNewArrival
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -11,63 +15,65 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_new_arrival.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
-import java.util.*
+import kotlin.collections.ArrayList
 
-class NewArrivalFragment : Fragment() {
-    private var itemsList: MutableList<BookNewArrival?>? = null
+class NewArrivalFragment : Fragment(), NewArrivalAdapter.ClickListener{
+    private var itemsList: ArrayList<BookNewArrival>? = null
     private var mAdapter: NewArrivalAdapter? = null
-    private var progressBar: ProgressBar? = null
-    private var recyclerView: RecyclerView? = null
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        val view: View = inflater.inflate(R.layout.fragment_new_arrival, container, false)
-        recyclerView = view.findViewById(R.id.recycler_view)
-        progressBar = view.findViewById(R.id.progressbar_fragment_store)
-        itemsList = ArrayList<BookNewArrival?>()
-        mAdapter = NewArrivalAdapter(view.context, itemsList!!)
-        val mLayoutManager: RecyclerView.LayoutManager = GridLayoutManager(container!!.context, 3)
-        recyclerView.setLayoutManager(mLayoutManager)
-        recyclerView.setItemAnimator(DefaultItemAnimator())
-        recyclerView.setAdapter(mAdapter)
-        recyclerView.setNestedScrollingEnabled(false)
-        if (isNetworkAvailable) {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_new_arrival, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        itemsList = ArrayList()
+        mAdapter = NewArrivalAdapter(view.context, itemsList)
+
+        val mLayoutManager: RecyclerView.LayoutManager = GridLayoutManager(context, 3)
+        recycler_view_store.layoutManager = mLayoutManager
+        recycler_view_store.itemAnimator = DefaultItemAnimator()
+        recycler_view_store.adapter = mAdapter
+        recycler_view_store.isNestedScrollingEnabled = false
+
+        if (isNetworkAvailable)
+        {
             GetLatestBooks(this@NewArrivalFragment).execute()
-        } else {
-            Toast.makeText(container.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
         }
-        return view
+        else
+        {
+            Toast.makeText(context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
      * Checks if there is Internet accessible.
      * @return True if there is Internet. False if not.
      */
-    private val isNetworkAvailable: Boolean
-        private get() {
+    private val isNetworkAvailable: Boolean get() {
             var activeNetworkInfo: NetworkInfo? = null
             if (activity != null) {
                 val connectivityManager = activity!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                if (connectivityManager != null) {
-                    activeNetworkInfo = connectivityManager.activeNetworkInfo
-                }
+                activeNetworkInfo = connectivityManager.activeNetworkInfo
             }
             return activeNetworkInfo != null && activeNetworkInfo.isConnected
         }
 
     private class GetLatestBooks internal constructor(context: NewArrivalFragment) : AsyncTask<Void?, Void?, Void?>() {
         var bookNewArrival: BookNewArrival? = null
-        private val activityWeakReference: WeakReference<NewArrivalFragment>
-        protected override fun doInBackground(vararg arg0: Void): Void? {
+        private val activityWeakReference: WeakReference<NewArrivalFragment> = WeakReference(context)
+
+        override fun doInBackground(vararg arg0: Void?): Void? {
             val newArrivalFragment = activityWeakReference.get()
             val sh = HttpHandler()
             val url: String = AppConfig.URL_LATEST_BOOKS
@@ -79,11 +85,11 @@ class NewArrivalFragment : Fragment() {
                     for (i in 0 until jsonArray.length()) {
                         bookNewArrival = BookNewArrival()
                         val c = jsonArray.getJSONObject(i)
-                        bookNewArrival.setTitle(c.getString("arrivalkanaam"))
-                        bookNewArrival.setRate(c.getString("arrivalkarate"))
-                        bookNewArrival.setUrl(c.getString("arrivalkaimageurl"))
-                        bookNewArrival.setSiteUrl(c.getString("arrivalkasiteurl"))
-                        newArrivalFragment!!.itemsList!!.add(bookNewArrival)
+                        bookNewArrival!!.title = c.getString("arrivalkanaam")
+                        bookNewArrival!!.rate = c.getString("arrivalkarate")
+                        bookNewArrival!!.url = c.getString("arrivalkaimageurl")
+                        bookNewArrival!!.siteUrl = c.getString("arrivalkasiteurl")
+                        newArrivalFragment!!.itemsList!!.add(bookNewArrival!!)
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()
@@ -99,17 +105,15 @@ class NewArrivalFragment : Fragment() {
             super.onPostExecute(result)
             val newArrivalFragment = activityWeakReference.get()
             newArrivalFragment!!.mAdapter!!.notifyDataSetChanged()
-            newArrivalFragment.progressBar!!.visibility = View.INVISIBLE
-            newArrivalFragment.recyclerView!!.addOnItemTouchListener(NewArrivalAdapter.RecyclerTouchListener(newArrivalFragment.context, NewArrivalAdapter.ClickListener { position: Int ->
-                val url: String = newArrivalFragment.itemsList!![position].getSiteUrl()
-                val intent = Intent(newArrivalFragment.activity, PDFActivity::class.java)
-                intent.putExtra("url", url)
-                newArrivalFragment.startActivity(intent)
-            }))
+            newArrivalFragment.progressbar_fragment_store.visibility = View.INVISIBLE
+            newArrivalFragment.recycler_view_store.addOnItemTouchListener(NewArrivalAdapter.RecyclerTouchListener(newArrivalFragment.context, newArrivalFragment))
         }
+    }
 
-        init {
-            activityWeakReference = WeakReference(context)
-        }
+    override fun onClick(position: Int) {
+        val url: String? = itemsList!![position].siteUrl
+        val intent = Intent(activity, PDFActivity::class.java)
+        intent.putExtra("url", url)
+        startActivity(intent)
     }
 }

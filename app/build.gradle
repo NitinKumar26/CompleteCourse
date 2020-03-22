@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'io.fabric'
 //Performance Monitoring plugin
@@ -13,8 +15,8 @@ android {
         applicationId "in.completecourse"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 22
-        versionName "2.2.04"
+        versionCode 24
+        versionName "2.2.06"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
         android.defaultConfig.vectorDrawables.useSupportLibrary true
@@ -29,14 +31,13 @@ android {
         }
 
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField("String", "API_KEY", API_KEY)
             aaptOptions.cruncherEnabled  false //Disable PNG Crunching so as to improve the Gradle build speed
             ext.alwaysUpdateBuildId = false //Disable Crashlytics always update build Id so as to improve the Gradle build speed
         }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -75,11 +76,12 @@ dependencies {
     //Firebase Performance Monitoring Library
     implementation 'com.google.firebase:firebase-perf:19.0.5'
     //Firebase Ads SDK
-    implementation 'com.google.firebase:firebase-ads:19.0.0'
+    implementation 'com.google.firebase:firebase-ads:19.0.1'
     //Google Play Services Auth Library
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     //Firebase Authentication Library
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.0'
+
 
     implementation ("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava") { exclude group: 'com.google.guava', module: 'listenablefuture' }
 
@@ -93,4 +95,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

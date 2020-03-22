@@ -1,8 +1,11 @@
 package `in`.completecourse.fragment
 
+import `in`.completecourse.PDFActivity
+import `in`.completecourse.R
+import `in`.completecourse.VideoActivity
 import `in`.completecourse.adapter.ClassChaptersAdapter
-import `in`.completecourse.fragment.ClassDetailsFragment
-import android.app.ProgressDialog
+import `in`.completecourse.app.AppConfig
+import `in`.completecourse.model.ChapterItem
 import android.content.Intent
 import android.net.Uri
 import android.os.AsyncTask
@@ -11,23 +14,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import butterknife.BindView
 import butterknife.ButterKnife
-import butterknife.OnClick
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.InterstitialAd
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.android.synthetic.main.fragment_class_details.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
@@ -38,7 +38,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class ClassDetailsFragment() : Fragment() {
+class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private var chapterItemArrayList: ArrayList<ChapterItem>? = null
     private var adapter: ClassChaptersAdapter? = null
     private var mInterstitialAd: InterstitialAd? = null
@@ -53,85 +53,7 @@ class ClassDetailsFragment() : Fragment() {
     private var mName: String? = null
     private var mRating: String? = null
     private var adRequest: AdRequest? = null
-    private val pDialog: ProgressDialog? = null
 
-    @BindView(R.id.important_concepts_view)
-    var importantConcepts: View? = null
-
-    @BindView(R.id.answer_key_view)
-    var answerKey: View? = null
-
-    @BindView(R.id.video_view)
-    var video: View? = null
-
-    @BindView(R.id.other_view)
-    var impQues: View? = null
-
-    @BindView(R.id.adView_banner_class_details)
-    var mAdView: AdView? = null
-
-    @BindView(R.id.linear_in_house)
-    var mLinearInHouse: LinearLayout? = null
-
-    @BindView(R.id.app_banner)
-    var mInHouseBanner: ImageView? = null
-
-    @BindView(R.id.app_icon)
-    var mInHouseAppIcon: ImageView? = null
-
-    @BindView(R.id.app_name)
-    var mInhouseAppName: TextView? = null
-
-    @BindView(R.id.app_rating)
-    var mInHouseRating: TextView? = null
-
-    @BindView(R.id.btn_install)
-    var mInHouseInstallButton: Button? = null
-
-    @BindView(R.id.image_answer_key)
-    var imageAnswerKey: ImageView? = null
-
-    @BindView(R.id.image_important_concepts)
-    var imageImaportantConcepts: ImageView? = null
-
-    @BindView(R.id.image_video)
-    var imageVideo: ImageView? = null
-
-    @BindView(R.id.image_other)
-    var imageImportantQues: ImageView? = null
-
-    @BindView(R.id.text_answer_key)
-    var textAnswerKey: TextView? = null
-
-    @BindView(R.id.text_imp_concepts)
-    var textImportantConcepts: TextView? = null
-
-    @BindView(R.id.tv_adhyay_ka_naam)
-    var addhyayeTextView: TextView? = null
-
-    @BindView(R.id.text_total_answer_key)
-    var textTotalAnswerKey: TextView? = null
-
-    @BindView(R.id.text_total_important_concepts)
-    var textTotalImportantConcepts: TextView? = null
-
-    @BindView(R.id.text_total_video)
-    var textTotalVideo: TextView? = null
-
-    @BindView(R.id.text_video)
-    var textVideo: TextView? = null
-
-    @BindView(R.id.text_total_other)
-    var textTotalImpQues: TextView? = null
-
-    @BindView(R.id.text_other)
-    var textImportantQues: TextView? = null
-
-    @BindView(R.id.recyclerView)
-    var recyclerView: RecyclerView? = null
-
-    @BindView(R.id.progress_bar)
-    var progressBar: ProgressBar? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view: View = inflater.inflate(R.layout.fragment_class_details, container, false)
         ButterKnife.bind(this, view)
@@ -143,215 +65,184 @@ class ClassDetailsFragment() : Fragment() {
         db = FirebaseFirestore.getInstance()
         adRequest = AdRequest.Builder().build()
         setAds()
-        mInterstitialAd = InterstitialAd(Objects.requireNonNull(activity))
+        mInterstitialAd = InterstitialAd(activity)
         mInterstitialAd!!.adUnitId = activity!!.resources.getString(R.string.interstitial_ad_id)
-        answerKey!!.isSelected = true
-        importantConcepts!!.isSelected = false
-        video!!.isSelected = false
+        answer_key_view.isSelected = true
+        important_concepts_view.isSelected = false
+        video_view.isSelected = false
         chapterItemArrayList = ArrayList<ChapterItem>()
-        recyclerView!!.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        if (SubjectActivity.intent != null) {
-            subjectStringFinal = SubjectActivity.subjectString
-            classStringFinal = SubjectActivity.classString
-            val dataObj = arrayOfNulls<String>(2)
-            dataObj[0] = classStringFinal
-            dataObj[1] = subjectStringFinal
-            val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
-            jsonTransmitter.execute(*dataObj)
+        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+
+
+        subjectStringFinal = arguments?.getString("studentSubject")
+        classStringFinal = arguments?.getString("studentClass")
+
+        val dataObj = arrayOfNulls<String>(2)
+        dataObj[0] = classStringFinal
+        dataObj[1] = subjectStringFinal
+        val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
+        jsonTransmitter.execute(*dataObj)
+
+        answer_key_view.setOnClickListener {
+            answerKey()
         }
-        SubjectActivity.subjectViewPager.addOnPageChangeListener(object : OnPageChangeListener {
-            override fun onPageScrolled(i: Int, v: Float, i1: Int) {}
-            override fun onPageSelected(i: Int) {
-                if (classStringFinal.equals(ListConfig.classCode.get(0), ignoreCase = true)) {
-                    subjectStringFinal = ListConfig.subjectCodeNinth.get(i % 4)
-                } else if (classStringFinal.equals(ListConfig.classCode.get(1), ignoreCase = true)) {
-                    subjectStringFinal = ListConfig.subjectCodeTenth.get(i % 4)
-                } else if (classStringFinal.equals(ListConfig.classCode.get(2), ignoreCase = true)) {
-                    subjectStringFinal = ListConfig.subjectCodeEleven.get(i % 4)
-                } else {
-                    subjectStringFinal = ListConfig.subjectCodeTwelve.get(i % 4)
-                }
-                importantConcepts!!.isSelected = false
-                answerKey!!.isSelected = true
-                answerKey!!.background = (context)!!.resources.getDrawable(R.drawable.video_selected)
-                imageAnswerKey!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_answer_key))
-                textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-                textTotalAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-                importantConcepts!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-                textTotalImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-                imageImaportantConcepts!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_concept_default))
-                textImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-                addhyayeTextView!!.visibility = View.VISIBLE
-                video!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-                textTotalVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-                imageVideo!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_video_player_default))
-                textVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
 
-                //Other Important Questions View
-                impQues!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-                textTotalImpQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-                imageImportantQues!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_imp_question_default))
-                textImportantQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-                val dataObj = arrayOfNulls<String>(2)
-                dataObj[0] = classStringFinal
-                dataObj[1] = subjectStringFinal
-                val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
-                jsonTransmitter.execute(*dataObj)
-            }
+        important_concepts_view.setOnClickListener {
+            importantConcepts()
+        }
 
-            override fun onPageScrollStateChanged(i: Int) {}
-        })
+        video_view.setOnClickListener {
+            video()
+        }
+
+        other_view.setOnClickListener {
+            otherView()
+        }
+
     }
 
-    @OnClick(R.id.answer_key_view)
-    fun answerKey() {
-        answerKey!!.isSelected = true
-        importantConcepts!!.isSelected = false
-        video!!.isSelected = false
-        impQues!!.isSelected = false
+    private fun answerKey() {
+        answer_key_view.isSelected = true
+        important_concepts_view.isSelected = false
+        video_view.isSelected = false
+        other_view.isSelected = false
         if (context != null) {
             //NCERT Answer Key View
-            answerKey!!.background = context!!.resources.getDrawable(R.drawable.video_selected)
-            imageAnswerKey!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_answer_key))
-            textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-            textTotalAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
+            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key, null))
+            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            importantConcepts!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImaportantConcepts!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_concept_default))
-            textImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Video View
-            video!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            imageVideo!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_video_player_default))
-            textVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            textTotalVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Other Important Questions View
-            impQues!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImpQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImportantQues!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_imp_question_default))
-            textImportantQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyay TextView
-        addhyayeTextView!!.visibility = View.VISIBLE
+        tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
-
-    @OnClick(R.id.important_concepts_view)
-    fun importantConcepts() {
-        importantConcepts!!.isSelected = true
-        answerKey!!.isSelected = false
-        video!!.isSelected = false
-        impQues!!.isSelected = false
+    private fun importantConcepts() {
+        important_concepts_view.isSelected = true
+        answer_key_view.isSelected = false
+        video_view.isSelected = false
+        other_view.isSelected = false
         if (context != null) {
             //Important Concepts View
-            importantConcepts!!.background = context!!.resources.getDrawable(R.drawable.video_selected)
-            imageImaportantConcepts!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_concept))
-            textImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-            textTotalImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
+            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept, null))
+            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //NCERT Answer Key View
-            answerKey!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageAnswerKey!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_answer_key_default))
-            textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Video View
-            video!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            imageVideo!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_video_player_default))
-            textVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            textTotalVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Other Important Questions View
-            impQues!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImpQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImportantQues!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_imp_question_default))
-            textImportantQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
-        addhyayeTextView!!.visibility = View.VISIBLE
+        tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
-
-    @OnClick(R.id.video_view)
-    fun video() {
-        video!!.isSelected = true
-        answerKey!!.isSelected = false
-        importantConcepts!!.isSelected = false
-        impQues!!.isSelected = false
+    private fun video() {
+        video_view.isSelected = true
+        answer_key_view.isSelected = false
+        important_concepts_view.isSelected = false
+        other_view.isSelected = false
         if (context != null) {
             //Video View
-            video!!.background = context!!.resources.getDrawable(R.drawable.video_selected)
-            imageVideo!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_video_player))
-            textVideo!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-            textTotalVideo!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
+            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player, null))
+            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            importantConcepts!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImaportantConcepts!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_concept_default))
-            textImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Answer Key View
-            answerKey!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageAnswerKey!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_answer_key_default))
-            textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Other Important Questions View
-            impQues!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImpQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImportantQues!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_imp_question_default))
-            textImportantQues!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyay Ka Naam TextView
-        addhyayeTextView!!.visibility = View.VISIBLE
+        tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
-
-    @OnClick(R.id.other_view)
-    fun otherView() {
-        impQues!!.isSelected = true
-        answerKey!!.isSelected = false
-        importantConcepts!!.isSelected = false
-        video!!.isSelected = false
+    private fun otherView() {
+        other_view.isSelected = true
+        answer_key_view.isSelected = false
+        important_concepts_view.isSelected = false
+        video_view.isSelected = false
         if (context != null) {
             //Important Question View
-            impQues!!.background = context!!.resources.getDrawable(R.drawable.video_selected)
-            imageImportantQues!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_imp_question))
-            textImportantQues!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
-            textTotalImpQues!!.setTextColor(context!!.resources.getColor(R.color.colorWhite))
+            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question, null))
+            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            importantConcepts!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageImaportantConcepts!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_concept_default))
-            textImportantConcepts!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Answer Key View
-            answerKey!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            textTotalAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            imageAnswerKey!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_answer_key_default))
-            textAnswerKey!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            video!!.background = context!!.resources.getDrawable(R.drawable.not_selected)
-            imageVideo!!.setImageDrawable(context!!.resources.getDrawable(R.drawable.ic_video_player_default))
-            textVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
-            textTotalVideo!!.setTextColor(context!!.resources.getColor(R.color.colorBlack))
+            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyaya Ka Naam TextView
-        addhyayeTextView!!.visibility = View.VISIBLE
+        tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
 
     private fun setAds() {
-        db!!.collection("flags").document("ads_flags").get().addOnSuccessListener(OnSuccessListener { documentSnapshot ->
+        db!!.collection("flags").document("ads_flags").get().addOnSuccessListener { documentSnapshot ->
             adsense = documentSnapshot.getBoolean("adsense")
             inHouse = documentSnapshot.getBoolean("in_house")
             interstitial = documentSnapshot.getBoolean("interstitial")
             banner = documentSnapshot.getBoolean("banner")
             if ((adsense)!!) {
                 if ((banner)!!) {
-                    mAdView!!.visibility = View.VISIBLE
-                    mLinearInHouse!!.visibility = View.GONE
-                    mAdView!!.loadAd(adRequest)
+                    adView_banner_class_details.visibility = View.VISIBLE
+                    linear_in_house.visibility = View.GONE
+                    adView_banner_class_details.loadAd(adRequest)
                 }
                 if ((interstitial)!!) {
                     mInterstitialAd!!.loadAd(AdRequest.Builder().build())
@@ -364,45 +255,46 @@ class ClassDetailsFragment() : Fragment() {
                     }
                 }
             } else if ((inHouse)!!) {
-                mLinearInHouse!!.visibility = View.VISIBLE
-                mAdView!!.visibility = View.GONE
-                db!!.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener({ document: QuerySnapshot ->
+                linear_in_house.visibility = View.VISIBLE
+                adView_banner_class_details.visibility = View.GONE
+                db!!.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener { document: QuerySnapshot ->
                     for (doc: QueryDocumentSnapshot in document) {
-                        Log.d("document", doc.getId() + " => " + doc.getData())
+                        Log.d("document", doc.id + " => " + doc.data)
                         mBannerUrl = doc.getString("banner_url")
                         mIconUrl = doc.getString("icon_url")
                         mInstallUrl = doc.getString("install_url")
                         mName = doc.getString("name")
                         mRating = doc.get("rating").toString()
                     }
-                    if (getContext() != null) {
-                        Glide.with((getContext())!!).load(mBannerUrl).into((mInHouseBanner)!!)
-                        Glide.with((getContext())!!).load(mIconUrl).into((mInHouseAppIcon)!!)
+                    if (context != null) {
+                        Glide.with((context)!!).load(mBannerUrl).into((app_banner)!!)
+                        Glide.with((context)!!).load(mIconUrl).into((app_icon)!!)
                     }
-                    mInhouseAppName!!.setText(mName)
-                    mInHouseRating!!.setText(mRating)
-                    mInHouseInstallButton!!.setOnClickListener(View.OnClickListener { v: View? ->
-                        val intentRate: Intent = Intent("android.intent.action.VIEW",
+                    app_name.text = mName
+                    app_rating.text = mRating
+                    btn_install.setOnClickListener {
+                        val intentRate = Intent("android.intent.action.VIEW",
                                 Uri.parse(mInstallUrl))
                         startActivity(intentRate)
-                    })
-                }).addOnFailureListener({ e: Exception -> Log.e("exception", "exception" + e.message) })
+                    }
+                }.addOnFailureListener { e: Exception -> Log.e("exception", "exception" + e.message) }
             } else {
-                mAdView!!.visibility = View.GONE
-                mLinearInHouse!!.visibility = View.GONE
+                adView_banner_class_details.visibility = View.GONE
+                linear_in_house.visibility = View.GONE
             }
-        })
+        }
     }
 
     internal class JSONTransmitter(context: ClassDetailsFragment) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<ClassDetailsFragment>
+        private val activityWeakReference: WeakReference<ClassDetailsFragment> = WeakReference(context)
+
         override fun onPreExecute() {
             val activity = activityWeakReference.get()
-            activity!!.progressBar!!.visibility = View.VISIBLE
+            activity!!.progress_bar.visibility = View.VISIBLE
             activity.clear()
         }
 
-        protected override fun doInBackground(vararg params: String): String? {
+        override fun doInBackground(vararg params: String?): String? {
             val activity = activityWeakReference.get()
             val urlString: String = AppConfig.URL_CHAPTERS
             val studentclass = params[0]
@@ -413,7 +305,7 @@ class ClassDetailsFragment() : Fragment() {
             try {
                 url = URL(urlString)
                 urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection!!.requestMethod = "POST"
+                urlConnection.requestMethod = "POST"
                 urlConnection.doOutput = true
                 var data: String = (URLEncoder.encode("studentclass", "UTF-8")
                         + "=" + URLEncoder.encode(studentclass, "UTF-8"))
@@ -426,11 +318,11 @@ class ClassDetailsFragment() : Fragment() {
                 stream = urlConnection.inputStream
                 val reader = BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8), 8)
                 val resFromServer = reader.readLine()
+                Log.e("response", resFromServer.toString())
                 val status: String
                 val jsonResponse: JSONObject
                 try {
                     jsonResponse = JSONObject(resFromServer)
-                    //Log.e("chatpterItem", String.valueOf(jsonResponse));
                     status = jsonResponse.getString("status")
                     if ((status == "true")) {
                         val jsonObject = JSONObject(resFromServer)
@@ -438,18 +330,18 @@ class ClassDetailsFragment() : Fragment() {
                         for (i in 0 until jsonArray.length()) {
                             val item = ChapterItem()
                             val chapterObject = jsonArray.getJSONObject(i)
-                            item.setChapterKaName(chapterObject.getString("ChapterKaName"))
-                            item.setChapterKaFlipURL(chapterObject.getString("ChapterKaFlipURL"))
-                            item.setConceptKaFlipURL(chapterObject.getString("ConceptKaFlipURL"))
-                            item.setChapterKaVideoID(chapterObject.getString("ChapterKaVideo"))
-                            item.setOtherImportantQues(chapterObject.getString("otherimgques"))
-                            item.setChapterSerial((i + 1).toString() + ".")
+                            item.chapterKaName = chapterObject.getString("ChapterKaName")
+                            item.chapterKaFlipURL = chapterObject.getString("ChapterKaFlipURL")
+                            item.conceptKaFlipURL = chapterObject.getString("ConceptKaFlipURL")
+                            item.chapterKaVideoID = chapterObject.getString("ChapterKaVideo")
+                            item.otherImportantQues = chapterObject.getString("otherimgques")
+                            item.chapterSerial = (i + 1).toString() + "."
                             activity!!.chapterItemArrayList!!.add(item)
                         }
                     } else {
                         val msg = jsonResponse.getString("message")
                         if (activity!!.activity != null) {
-                            activity.activity!!.runOnUiThread({ Toast.makeText(activity.getContext(), msg, Toast.LENGTH_SHORT).show() })
+                            activity.activity!!.runOnUiThread { Toast.makeText(activity.context, msg, Toast.LENGTH_SHORT).show() }
                         }
                     }
                 } catch (e: JSONException) {
@@ -472,37 +364,17 @@ class ClassDetailsFragment() : Fragment() {
 
         override fun onPostExecute(jsonObject: String?) {
             val activity = activityWeakReference.get()
-            activity!!.progressBar!!.visibility = View.GONE
+            activity!!.progress_bar.visibility = View.GONE
             activity.adapter = ClassChaptersAdapter((activity.activity)!!, (activity.chapterItemArrayList)!!)
-            activity.recyclerView!!.adapter = activity.adapter
+            activity.recyclerView.adapter = activity.adapter
             val count = activity.adapter!!.itemCount
-            activity.textTotalAnswerKey!!.text = count.toString()
-            activity.textTotalImportantConcepts!!.text = count.toString()
-            activity.textTotalVideo!!.text = count.toString()
-            activity.textTotalImpQues!!.text = count.toString()
-            activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, ClassChaptersAdapter.ClickListener { position: Int ->
-                if (activity.mInterstitialAd!!.isLoaded()) activity.mInterstitialAd!!.show()
-                val intent: Intent = Intent(activity.getActivity(), PDFActivity::class.java)
-                val intentVideo: Intent = Intent(activity.getActivity(), VideoActivity::class.java)
-                if (activity.answerKey!!.isSelected()) {
-                    intent.putExtra("url", activity.chapterItemArrayList!!.get(position).getChapterKaFlipURL())
-                    activity.startActivity(intent)
-                } else if (activity.importantConcepts!!.isSelected()) {
-                    intent.putExtra("url", activity.chapterItemArrayList!!.get(position).getConceptKaFlipURL())
-                    activity.startActivity(intent)
-                } else if (activity.video!!.isSelected()) {
-                    intentVideo.putExtra("videoID", activity.chapterItemArrayList!!.get(position).getChapterKaVideoID())
-                    activity.startActivity(intentVideo)
-                } else if (activity.impQues!!.isSelected()) {
-                    intent.putExtra("url", activity.chapterItemArrayList!!.get(position).getOtherImportantQues())
-                    activity.startActivity(intent)
-                }
-            }))
+            activity.text_total_answer_key.text = count.toString()
+            activity.text_total_important_concepts.text = count.toString()
+            activity.text_total_video.text = count.toString()
+            activity.text_total_other.text = count.toString()
+            activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, activity))
         }
 
-        init {
-            activityWeakReference = WeakReference(context)
-        }
     }
 
     private fun clear() {
@@ -516,5 +388,29 @@ class ClassDetailsFragment() : Fragment() {
     companion object {
         private var subjectStringFinal: String? = null
         private var classStringFinal: String? = null
+    }
+
+    override fun onClick(position: Int) {
+        if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+        val intent = Intent(activity, PDFActivity::class.java)
+        val intentVideo = Intent(activity, VideoActivity::class.java)
+        when {
+            answer_key_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].chapterKaFlipURL)
+                activity?.startActivity(intent)
+            }
+            important_concepts_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].conceptKaFlipURL)
+                activity?.startActivity(intent)
+            }
+            video_view.isSelected -> {
+                intentVideo.putExtra("videoID", chapterItemArrayList!![position].chapterKaVideoID)
+                activity?.startActivity(intentVideo)
+            }
+            other_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].otherImportantQues)
+                activity?.startActivity(intent)
+            }
+        }
     }
 }

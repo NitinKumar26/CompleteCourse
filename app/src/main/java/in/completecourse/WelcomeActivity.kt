@@ -1,5 +1,6 @@
 package `in`.completecourse
 
+import `in`.completecourse.helper.HelperMethods
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -14,13 +15,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import kotlinx.android.synthetic.main.activity_welcome.*
 
 class WelcomeActivity : AppCompatActivity() {
+
     private var viewPager: ViewPager? = null
     private var dotsLayout: LinearLayout? = null
-    private var layouts: IntArray
+    private var layouts: IntArray? = null
     private var btnSkip: Button? = null
     private var btnNext: Button? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,30 +53,31 @@ class WelcomeActivity : AppCompatActivity() {
         // making notification bar transparent
         HelperMethods.changeStatusBarColor(this@WelcomeActivity)
         val myViewPagerAdapter = MyViewPagerAdapter()
-        viewPager.setAdapter(myViewPagerAdapter)
-        viewPager.addOnPageChangeListener(viewPagerPageChangeListener)
-        btnSkip.setOnClickListener(View.OnClickListener { v: View? ->
+        view_pager.adapter = myViewPagerAdapter
+        view_pager.addOnPageChangeListener(viewPagerPageChangeListener)
+        btn_skip.setOnClickListener({ v: View? ->
             val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()
         })
-        btnNext.setOnClickListener(View.OnClickListener { v: View? ->
+
+        btn_next.setOnClickListener {
             // checking for last page
             // if last page home screen will be launched
             val nextItem = item
-            if (nextItem < layouts.size) {
+            if (nextItem < layouts!!.size) {
                 // move to next screen
-                viewPager.setCurrentItem(nextItem)
+                view_pager.currentItem = nextItem
             } else {
                 val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
                 startActivity(intent)
                 finish()
             }
-        })
+        }
     }
 
     private fun addBottomDots(currentPage: Int) {
-        val dots = arrayOfNulls<TextView>(layouts.size)
+        val dots = arrayOfNulls<TextView>(layouts!!.size)
         val colorsActive = resources.getIntArray(R.array.array_dot_active)
         val colorsInactive = resources.getIntArray(R.array.array_dot_inactive)
         dotsLayout!!.removeAllViews()
@@ -83,25 +88,17 @@ class WelcomeActivity : AppCompatActivity() {
             dots[i]!!.setTextColor(colorsInactive[currentPage])
             dotsLayout!!.addView(dots[i])
         }
-        if (dots.size > 0) dots[currentPage]!!.setTextColor(colorsActive[currentPage])
+        if (dots.isNotEmpty()) dots[currentPage]!!.setTextColor(colorsActive[currentPage])
     }
 
     private val item: Int
-        private get() = viewPager!!.currentItem + 1
+        get() = viewPager!!.currentItem + 1
 
-    private fun launchHomeScreen() {
-        val prefManager = PrefManager(applicationContext)
-        prefManager.setFirstTimeLaunch(false)
-        startActivity(Intent(this@WelcomeActivity, MainActivity::class.java))
-        finish()
-    }
-
-    //  viewpager change listener
     private val viewPagerPageChangeListener: OnPageChangeListener = object : OnPageChangeListener {
         override fun onPageSelected(position: Int) {
             addBottomDots(position)
             // changing the next button text 'NEXT' / 'GOT IT'
-            if (position == layouts.size - 1) {
+            if (position == layouts!!.size - 1) {
                 // last page. make button text to GOT IT
                 btnNext!!.text = getString(R.string.start)
                 btnSkip!!.visibility = View.GONE
@@ -116,18 +113,15 @@ class WelcomeActivity : AppCompatActivity() {
         override fun onPageScrollStateChanged(arg0: Int) {}
     }
 
-    /**
-     * View pager adapter
-     */
     internal inner class MyViewPagerAdapter : PagerAdapter() {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val view = LayoutInflater.from(container.context).inflate(layouts[position], container, false)
+            val view = LayoutInflater.from(container.context).inflate(layouts!![position], container, false)
             container.addView(view)
             return view
         }
 
         override fun getCount(): Int {
-            return layouts.size
+            return layouts!!.size
         }
 
         override fun isViewFromObject(view: View, obj: Any): Boolean {

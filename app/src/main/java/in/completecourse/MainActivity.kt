@@ -1,35 +1,35 @@
 package `in`.completecourse
 
+import `in`.completecourse.fragment.mainFragment.HomeFragment
+import `in`.completecourse.fragment.mainFragment.NewArrivalFragment
+import `in`.completecourse.fragment.mainFragment.NotificationFragment
+import `in`.completecourse.helper.HelperMethods
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.TextView
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private var titleText: TextView? = null
-    private var homeFragment: HomeFragment? = null
-    private var newArrivalFragment: NewArrivalFragment? = null
-    private var notificationFragment: NotificationFragment? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //HelperMethods.changeStatusBarColor(MainActivity.this);
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_main)
-        titleText = findViewById(R.id.toolbar_title)
-        setSupportActionBar(toolbar)
+
+        setSupportActionBar(toolbar_main)
         val actionBar = supportActionBar
-        actionBar?.setTitle(null)
-        homeFragment = HomeFragment()
-        newArrivalFragment = NewArrivalFragment()
-        notificationFragment = NotificationFragment()
-        val navigation = findViewById<BottomNavigationView>(R.id.navigation)
-        navigation.itemIconTintList = null
+        actionBar?.title = null
+        toolbar_title.text = getString(R.string.home)
+
+        val homeFragment = HomeFragment()
+        val newArrivalFragment = NewArrivalFragment()
+        val notificationFragment = NotificationFragment()
         val layoutParams = navigation.layoutParams as CoordinatorLayout.LayoutParams
-        layoutParams.behavior = HideBottomViewOnScrollBehavior<Any?>()
+
+        navigation.itemIconTintList = null
+        layoutParams.behavior = HideBottomViewOnScrollBehavior<View?>()
         navigation.selectedItemId = R.id.action_home
         HelperMethods.loadFragment(homeFragment, this)
         navigation.setOnNavigationItemSelectedListener { item: MenuItem ->
@@ -38,25 +38,26 @@ class MainActivity : AppCompatActivity() {
                     HelperMethods.showFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(newArrivalFragment, this@MainActivity)
                     HelperMethods.hideFragment(notificationFragment, this@MainActivity)
-                    titleText.setText(R.string.home)
+                    toolbar_title.setText(R.string.home)
                     return@setOnNavigationItemSelectedListener true
                 }
                 R.id.action_new_arrivals -> {
                     HelperMethods.showFragment(newArrivalFragment, this@MainActivity)
                     HelperMethods.hideFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(notificationFragment, this@MainActivity)
-                    titleText.setText(R.string.new_arrivals)
+                    toolbar_title.setText(R.string.new_arrivals)
                     return@setOnNavigationItemSelectedListener true
                 }
                 R.id.action_notifications -> {
                     HelperMethods.showFragment(notificationFragment, this@MainActivity)
                     HelperMethods.hideFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(newArrivalFragment, this@MainActivity)
-                    titleText.setText(R.string.notifications)
+                    toolbar_title.setText(R.string.notifications)
                     return@setOnNavigationItemSelectedListener true
                 }
             }
             false
         }
     }
+
 }
