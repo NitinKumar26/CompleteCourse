@@ -285,6 +285,43 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         }
     }
 
+    private fun clear() {
+        val size = chapterItemArrayList!!.size
+        if (size > 0) {
+            chapterItemArrayList!!.subList(0, size).clear()
+            adapter!!.notifyItemRangeRemoved(0, size)
+        }
+    }
+
+    companion object {
+        private var subjectStringFinal: String? = null
+        private var classStringFinal: String? = null
+    }
+
+    override fun onClick(position: Int) {
+        if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+        val intent = Intent(activity, PDFActivity::class.java)
+        val intentVideo = Intent(activity, VideoActivity::class.java)
+        when {
+            answer_key_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].chapterKaFlipURL)
+                activity?.startActivity(intent)
+            }
+            important_concepts_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].conceptKaFlipURL)
+                activity?.startActivity(intent)
+            }
+            video_view.isSelected -> {
+                intentVideo.putExtra("videoID", chapterItemArrayList!![position].chapterKaVideoID)
+                activity?.startActivity(intentVideo)
+            }
+            other_view.isSelected -> {
+                intent.putExtra("url", chapterItemArrayList!![position].otherImportantQues)
+                activity?.startActivity(intent)
+            }
+        }
+    }
+
     internal class JSONTransmitter(context: ClassDetailsFragment) : AsyncTask<String?, String?, String?>() {
         private val activityWeakReference: WeakReference<ClassDetailsFragment> = WeakReference(context)
 
@@ -311,6 +348,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
                         + "=" + URLEncoder.encode(studentclass, "UTF-8"))
                 data += ("&" + URLEncoder.encode("studentsubject", "UTF-8") + "="
                         + URLEncoder.encode(studentsubject, "UTF-8"))
+
                 urlConnection.connect()
                 val wr = OutputStreamWriter(urlConnection.outputStream)
                 wr.write(data)
@@ -375,42 +413,5 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, activity))
         }
 
-    }
-
-    private fun clear() {
-        val size = chapterItemArrayList!!.size
-        if (size > 0) {
-            chapterItemArrayList!!.subList(0, size).clear()
-            adapter!!.notifyItemRangeRemoved(0, size)
-        }
-    }
-
-    companion object {
-        private var subjectStringFinal: String? = null
-        private var classStringFinal: String? = null
-    }
-
-    override fun onClick(position: Int) {
-        if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
-        val intent = Intent(activity, PDFActivity::class.java)
-        val intentVideo = Intent(activity, VideoActivity::class.java)
-        when {
-            answer_key_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].chapterKaFlipURL)
-                activity?.startActivity(intent)
-            }
-            important_concepts_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].conceptKaFlipURL)
-                activity?.startActivity(intent)
-            }
-            video_view.isSelected -> {
-                intentVideo.putExtra("videoID", chapterItemArrayList!![position].chapterKaVideoID)
-                activity?.startActivity(intentVideo)
-            }
-            other_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].otherImportantQues)
-                activity?.startActivity(intent)
-            }
-        }
     }
 }

@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 
 class ItemFragment : Fragment() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         widthAndHeight
@@ -30,6 +31,7 @@ class ItemFragment : Fragment() {
         val position = arguments!!.getInt(POSITION)
         val scale = arguments!!.getFloat(SCALE)
         val classString = arguments?.getString(CLASSSTRING)
+        val subjectString = arguments?.getString(SUBJECTSTRING)
         val textView = view.findViewById<TextView>(R.id.pager_textview)
         val root: CarouselLinearLayout = view.findViewById(R.id.root_container)
         val imageView = view.findViewById<ImageView>(R.id.imgLogo)
@@ -38,7 +40,18 @@ class ItemFragment : Fragment() {
             textView.text = ListConfig.subjectHighSchool[position]
             imageView.setImageResource(ListConfig.imagesHighSchool[position])
         } else if (classString.equals("2", ignoreCase = true) || classString.equals("3", ignoreCase = true)) {
-            textView.text = ListConfig.subjectIntermediate[position]
+            if (subjectString.equals("18") ||
+                    subjectString.equals("19") ||
+                    subjectString.equals("17") ||
+                    subjectString.equals("20") ||
+                    subjectString.equals("21") ||
+                    subjectString.equals("22") ||
+                    subjectString.equals("23") ||
+                    subjectString.equals("24")){
+                textView.text = ListConfig.subjectIntermediateEnglish[position]
+            }else {
+                textView.text = ListConfig.subjectIntermediate[position]
+            }
             imageView.setImageResource(ListConfig.imagesIntermediate[position])
         }
 
@@ -62,13 +75,15 @@ class ItemFragment : Fragment() {
         private const val SCALE = "scale"
         private const val DRAWABLE_RESOURE = "resource"
         private const val CLASSSTRING = "classString"
+        private const val SUBJECTSTRING = "subjectString"
 
 
-        fun newInstance(context: Context, pos: Int, scale: Float, classString:String?): Fragment {
+        fun newInstance(context: Context, pos: Int, scale: Float, classString:String?, subjectString:String?): Fragment {
             val b = Bundle()
             b.putInt(POSITION, pos)
             b.putFloat(SCALE, scale)
             b.putString(CLASSSTRING, classString)
+            b.putString(SUBJECTSTRING, subjectString)
             return instantiate(context, ItemFragment::class.java.name, b)
         }
     }

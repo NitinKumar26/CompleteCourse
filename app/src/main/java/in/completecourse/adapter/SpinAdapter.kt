@@ -15,8 +15,12 @@ class SpinAdapter(context: Context, resource: Int, strArr: Array<String>) : Arra
     private val mResource: Int = resource
     private fun homeView(i: Int, viewGroup: ViewGroup): View {
         val inflate = mLayoutInflater.inflate(mResource, viewGroup, false)
-        (inflate.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[i] +
-                "<sup><small>th</small></sup> Class")
+
+        if (i == 4 || i == 5){
+            (inflate!!.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[i] + "<sup><small>th</small></sup> Class English")
+        }else{
+            (inflate!!.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[i] + "<sup><small>th</small></sup> Class")
+        }
         return inflate
     }
 
@@ -25,7 +29,11 @@ class SpinAdapter(context: Context, resource: Int, strArr: Array<String>) : Arra
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.spinner_new_view, parent, false)
         }
-        (convertView!!.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[position] + "<sup><small>th</small></sup> Class")
+        if (position == 4 || position == 5){
+            (convertView!!.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[position] + "<sup><small>th</small></sup> Class English")
+        }else{
+            (convertView!!.findViewById<View>(R.id.offer_type_txt) as TextView).text = Html.fromHtml(mStringArray[position] + "<sup><small>th</small></sup> Class")
+        }
         return convertView
     }
 

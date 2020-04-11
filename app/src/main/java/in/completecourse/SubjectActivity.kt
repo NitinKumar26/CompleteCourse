@@ -6,6 +6,7 @@ import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.utils.ListConfig
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -16,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_class_details.*
 class SubjectActivity : AppCompatActivity(), View.OnClickListener {
     var classString:String? = null
     var subjectString:String? = null
+    var spinPosition:String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,9 +30,11 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
 
         classString = intent.getStringExtra("classCode")
         subjectString = intent.getStringExtra("subjectCode")
+        spinPosition = intent.getStringExtra("spinPosition")
+        Log.e("spinPosition", spinPosition)
 
         viewpagerr.pageMargin = -HelperMethods.getPageMargin(this@SubjectActivity)
-        val adapter = CarouselPagerAdapter(this, supportFragmentManager, classString)
+        val adapter = CarouselPagerAdapter(this, supportFragmentManager, classString, subjectString)
         viewpagerr.adapter = adapter
         adapter.notifyDataSetChanged()
         viewpagerr.addOnPageChangeListener(adapter)
@@ -49,20 +53,22 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
             override fun onPageScrolled(i: Int, v: Float, i1: Int) {}
             override fun onPageSelected(i: Int) {
                 subjectString = when {
-                    classString.equals(ListConfig.classCode[0], ignoreCase = true) -> {
-                        ListConfig.subjectCodeNinth[i % 4]
-                    }
-                    classString.equals(ListConfig.classCode[1], ignoreCase = true) -> {
-                        ListConfig.subjectCodeTenth[i % 4]
-                    }
-                    classString.equals(ListConfig.classCode[2], ignoreCase = true) -> {
-                        ListConfig.subjectCodeEleven[i % 4]
-                    }
-                    else -> {
-                        ListConfig.subjectCodeTwelve[i % 4]
+                    classString.equals(ListConfig.classCode[0]) -> { ListConfig.subjectCodeNinth[i % 4] }
+                    classString.equals(ListConfig.classCode[1]) -> { ListConfig.subjectCodeTenth[i % 4] }
+                    classString.equals(ListConfig.classCode[2]) -> {
+                        if (spinPosition.equals("4")){
+                            ListConfig.subjectCodeElevenEnglish[i % 4]
+                        }else {
+                            ListConfig.subjectCodeEleven[i % 4]
+                        }
+                    }else -> {
+                        if (spinPosition.equals("5")){
+                            ListConfig.subjectCodeTwelveEnglish[i % 4]
+                        }else {
+                            ListConfig.subjectCodeTwelve[i % 4]
+                        }
                     }
                 }
-
                 important_concepts_view.isSelected = false
                 answer_key_view.isSelected = true
                 answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
@@ -91,7 +97,6 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
                 val jsonTransmitter = ClassDetailsFragment.JSONTransmitter(classFragment)
                 jsonTransmitter.execute(*dataObj)
             }
-
             override fun onPageScrollStateChanged(i: Int) {}
         })
     }
@@ -113,13 +118,33 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setViewPagerItem(classString: String?, subjectString: String?) {
-        if (classString.equals("4") && subjectString.equals("1") || classString.equals("1") && subjectString.equals("2") || classString.equals("2") && subjectString.equals("7") || classString.equals("3") && subjectString.equals("8")) {
+        if (classString.equals("4") && subjectString.equals("1") ||
+                classString.equals("1") && subjectString.equals("2") ||
+                classString.equals("2") && subjectString.equals("7") ||
+                classString.equals("3") && subjectString.equals("8") ||
+                classString.equals("2") && subjectString.equals("18") ||
+                classString.equals("3") && subjectString.equals("22")) {
             viewpagerr.currentItem = 0
-        } else if (classString.equals("4") && subjectString.equals("16") || classString.equals("1") && subjectString.equals("13") || classString.equals("2") && subjectString.equals("9") || classString.equals("3") && subjectString.equals("10")) {
+        } else if (classString.equals("4") && subjectString.equals("16") ||
+                classString.equals("1") && subjectString.equals("13") ||
+                classString.equals("2") && subjectString.equals("9") ||
+                classString.equals("3") && subjectString.equals("10") ||
+                classString.equals("2") && subjectString.equals("19") ||
+                classString.equals("3") && subjectString.equals("23")) {
             viewpagerr.currentItem = 1
-        } else if (classString.equals("2") && subjectString.equals("5") || classString.equals("3") && subjectString.equals("6") || classString.equals("4") && subjectString.equals("4") || classString.equals("1") && subjectString.equals("3")) {
+        } else if (classString.equals("2") && subjectString.equals("5") ||
+                classString.equals("3") && subjectString.equals("6") ||
+                classString.equals("4") && subjectString.equals("4") ||
+                classString.equals("1") && subjectString.equals("3") ||
+                classString.equals("2") && subjectString.equals("17") ||
+                classString.equals("3") && subjectString.equals("21")) {
             viewpagerr.currentItem = 2
-        } else if (classString.equals("2") && subjectString.equals("11") || classString.equals("3") && subjectString.equals("12") || classString.equals("4") && subjectString.equals("15") || classString.equals("1") && subjectString.equals("14")) {
+        } else if (classString.equals("2") && subjectString.equals("11") ||
+                classString.equals("3") && subjectString.equals("12") ||
+                classString.equals("4") && subjectString.equals("15") ||
+                classString.equals("1") && subjectString.equals("14") ||
+                classString.equals("2") && subjectString.equals("20") ||
+                classString.equals("3") && subjectString.equals("24")) {
             viewpagerr.currentItem = 3
         }
     }

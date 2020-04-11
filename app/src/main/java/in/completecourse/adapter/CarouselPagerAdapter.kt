@@ -12,8 +12,12 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import kotlinx.android.synthetic.main.activity_subject.*
 
-class CarouselPagerAdapter(private val context: SubjectActivity, private val fragmentManager: FragmentManager, private val classString:String?) : FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
+class CarouselPagerAdapter(private val context: SubjectActivity,
+                           private val fragmentManager: FragmentManager,
+                           private val classString:String?,
+                           private val subjectString:String? ) : FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
     private var scale = 0f
+
     override fun getItem(position: Int): Fragment {
         // make the first pager bigger than others
         var position = position
@@ -25,10 +29,9 @@ class CarouselPagerAdapter(private val context: SubjectActivity, private val fra
             } else {
                 SubjectActivity.count
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        return ItemFragment.newInstance(context, position, scale, classString)
+        catch (e: Exception) { e.printStackTrace() }
+        return ItemFragment.newInstance(context, position, scale, classString, subjectString)
     }
 
     override fun getCount(): Int {
@@ -36,7 +39,6 @@ class CarouselPagerAdapter(private val context: SubjectActivity, private val fra
         try {
             count = SubjectActivity.count * SubjectActivity.LOOPS
         } catch (e: Exception) {
-            // TODO: handle exception
             e.printStackTrace()
         }
         return count

@@ -264,4 +264,5 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
             }
         }
     }
+
 }
