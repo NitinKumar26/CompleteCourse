@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/logo"
@@ -14,9 +19,9 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="m"
-        android:fullBackupContent="@xml/backup_descriptor">
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:hardwareAccelerated="true">
 
         <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
@@ -58,11 +63,20 @@
         <activity
             android:name=".CompetitionUpdatesActivity"
             android:theme="@style/dialog" />
+
         <activity android:name=".UpdateVersionActivity" />
 
         <activity android:name=".VideoActivity"
             android:screenOrientation="landscape"
             android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".EditProfileActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.MoreAppsActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>

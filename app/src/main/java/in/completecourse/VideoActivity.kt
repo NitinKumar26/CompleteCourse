@@ -39,8 +39,7 @@ class VideoActivity : YouTubeBaseActivity(), YouTubePlayer.OnInitializedListener
         }
     }
 
-    override fun onInitializationSuccess(provider: YouTubePlayer.Provider,
-                                         player: YouTubePlayer, wasRestored: Boolean) {
+    override fun onInitializationSuccess(provider: YouTubePlayer.Provider, player: YouTubePlayer, wasRestored: Boolean) {
         if (!wasRestored) {
             // loadVideo() will auto play video
             // Use cueVideo() method, if you don't want to play it automatically

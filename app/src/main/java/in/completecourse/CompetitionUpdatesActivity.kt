@@ -3,7 +3,6 @@ package `in`.completecourse
 import `in`.completecourse.adapter.CompetitionUpdatesAdapter
 import `in`.completecourse.app.AppConfig
 import `in`.completecourse.model.UpdateItem
-import android.app.ProgressDialog
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +22,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 class CompetitionUpdatesActivity : AppCompatActivity() {
-    private var pDialog: ProgressDialog? = null
     private var updatesList: ArrayList<UpdateItem>? = null
     private var adapter: CompetitionUpdatesAdapter? = null
 
@@ -38,16 +36,16 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
         getUpdates.execute(*dataObj)
     }
 
-    private class GetUpdates internal constructor(context: CompetitionUpdatesActivity) : AsyncTask<String?, String?, String?>() {
+    private class GetUpdates constructor(context: CompetitionUpdatesActivity) : AsyncTask<String?, String?, String?>() {
         private val activityWeakReference: WeakReference<CompetitionUpdatesActivity> = WeakReference(context)
         var item: UpdateItem? = null
 
         override fun onPreExecute() {
             val activity = activityWeakReference.get()
-            activity!!.pDialog = ProgressDialog(activity)
-            activity.pDialog!!.setMessage("Please wait...")
-            activity.pDialog!!.setCancelable(false)
-            activity.pDialog!!.show()
+            //activity!!.pDialog = ProgressDialog(activity)
+            //activity.pDialog!!.setMessage("Please wait...")
+            //activity.pDialog!!.setCancelable(false)
+            //activity.pDialog!!.show()
         }
 
         override fun doInBackground(vararg params: String?): String? {
@@ -114,10 +112,12 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
 
         override fun onPostExecute(jsonObject: String?) {
             val activity = activityWeakReference.get()
+            /*
             if (activity!!.pDialog!!.isShowing) {
                 activity.pDialog!!.dismiss()
             }
-            activity.adapter = CompetitionUpdatesAdapter(activity, activity.updatesList)
+             */
+            activity?.adapter = CompetitionUpdatesAdapter(activity!!, activity.updatesList)
             activity.recyclerView!!.adapter = activity.adapter
         }
 

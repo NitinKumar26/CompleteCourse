@@ -1,8 +1,6 @@
 package `in`.completecourse
 
-import `in`.completecourse.fragment.mainFragment.HomeFragment
-import `in`.completecourse.fragment.mainFragment.NewArrivalFragment
-import `in`.completecourse.fragment.mainFragment.NotificationFragment
+import `in`.completecourse.fragment.mainFragment.*
 import `in`.completecourse.helper.HelperMethods
 import android.os.Bundle
 import android.view.MenuItem
@@ -26,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         val homeFragment = HomeFragment()
         val newArrivalFragment = NewArrivalFragment()
         val notificationFragment = NotificationFragment()
+        val profileFragment = ProfileFragments()
         val layoutParams = navigation.layoutParams as CoordinatorLayout.LayoutParams
 
         navigation.itemIconTintList = null
@@ -38,6 +37,7 @@ class MainActivity : AppCompatActivity() {
                     HelperMethods.showFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(newArrivalFragment, this@MainActivity)
                     HelperMethods.hideFragment(notificationFragment, this@MainActivity)
+                    HelperMethods.hideFragment(profileFragment, this@MainActivity)
                     toolbar_title.setText(R.string.home)
                     return@setOnNavigationItemSelectedListener true
                 }
@@ -45,14 +45,24 @@ class MainActivity : AppCompatActivity() {
                     HelperMethods.showFragment(newArrivalFragment, this@MainActivity)
                     HelperMethods.hideFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(notificationFragment, this@MainActivity)
+                    HelperMethods.hideFragment(profileFragment, this@MainActivity)
                     toolbar_title.setText(R.string.new_arrivals)
                     return@setOnNavigationItemSelectedListener true
                 }
                 R.id.action_notifications -> {
                     HelperMethods.showFragment(notificationFragment, this@MainActivity)
-                    HelperMethods.hideFragment(homeFragment, this@MainActivity)
                     HelperMethods.hideFragment(newArrivalFragment, this@MainActivity)
+                    HelperMethods.hideFragment(homeFragment, this@MainActivity)
+                    HelperMethods.hideFragment(profileFragment, this@MainActivity)
                     toolbar_title.setText(R.string.notifications)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.action_profile -> {
+                    HelperMethods.showFragment(profileFragment, this@MainActivity)
+                    HelperMethods.hideFragment(newArrivalFragment, this@MainActivity)
+                    HelperMethods.hideFragment(homeFragment, this@MainActivity)
+                    HelperMethods.hideFragment(notificationFragment, this@MainActivity)
+                    toolbar_title.setText(R.string.profile)
                     return@setOnNavigationItemSelectedListener true
                 }
             }

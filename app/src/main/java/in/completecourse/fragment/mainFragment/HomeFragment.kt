@@ -1,9 +1,6 @@
 package `in`.completecourse.fragment.mainFragment
 
-import `in`.completecourse.R
-import `in`.completecourse.ScanActivity
-import `in`.completecourse.SearchActivity
-import `in`.completecourse.SubjectActivity
+import `in`.completecourse.*
 import `in`.completecourse.adapter.ImageAdapter
 import `in`.completecourse.adapter.SliderAdapter
 import `in`.completecourse.app.AppConfig
@@ -21,6 +18,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ads.mediationtestsuite.MediationTestSuite
+//import com.facebook.ads.InterstitialAd
+//import com.google.ads.mediation.facebook.FacebookAdapter
+//import com.google.ads.mediation.facebook.FacebookMediationAdapter
+//import com.google.android.ads.mediationtestsuite.MediationTestSuite
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONException
@@ -38,6 +40,7 @@ import java.util.*
 class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     private var updateList: ArrayList<Update>? = null
     private var sliderAdapter: SliderAdapter? = null
+    //private var interstitialAd: InterstitialAd? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -136,33 +139,33 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        //interstitialAd = InterstitialAd(context, "1208878546155354_1208977166145492")
         val cardList: ArrayList<CardModel> = ArrayList<CardModel>()
         cardList.add(CardModel(R.drawable.manual_search, "Manual Search"))
         cardList.add(CardModel(R.drawable.scan_qr, "Scan QR Code"))
-        val indicator: TabLayout = view.findViewById(R.id.indicator)
-        val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
-        recyclerView.setHasFixedSize(true)
+        //val indicator: TabLayout = view.findViewById(R.id.indicator)
+        //val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
+        recycler_view.setHasFixedSize(true)
         //use a linear layout manager
         val gridLayoutManager = GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
-        recyclerView.layoutManager = gridLayoutManager
+        recycler_view.layoutManager = gridLayoutManager
 
         //specify an adapter
         val recyclerViewAdapter = ImageAdapter(cardList, context!!)
-        recyclerView.adapter = recyclerViewAdapter
-        recyclerView.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, this))
+        recycler_view.adapter = recyclerViewAdapter
+        recycler_view.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, this))
 
-        updateList = ArrayList()
-        sliderAdapter = SliderAdapter(activity, updateList!!)
-        viewPager.adapter = sliderAdapter
-        indicator.setupWithViewPager(viewPager, true)
         val timer = Timer()
         timer.scheduleAtFixedRate(SliderTimer(), 4000, 6000)
         if (HelperMethods.isNetworkAvailable(activity)) {
             val jsonTransmitter = JSONTransmitter(this@HomeFragment)
             jsonTransmitter.execute()
-        } else {
+        }
+        else {
             Toast.makeText(view.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
         }
+
+        //if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
     }
 
     private inner class SliderTimer : TimerTask() {
@@ -214,10 +217,16 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
                         for (i in 0 until jsonArray.length()) {
                             val dataObject = jsonArray.getJSONObject(i)
                             update = Update(dataObject.getString("name"), dataObject.getString("imageurl"))
-                            activity!!.updateList!!.add(update)
+                            activity!!.updateList = ArrayList()
+                            activity.updateList!!.add(update)
+                        }
+                        if (activity!!.activity != null){
+                            activity.sliderAdapter = SliderAdapter(activity.activity, activity.updateList!!)
                             activity.sliderAdapter!!.setItems(activity.updateList)
-                            if (activity.activity != null) {
-                                activity.activity!!.runOnUiThread { activity.sliderAdapter!!.notifyDataSetChanged() }
+                            activity.activity!!.runOnUiThread {
+                                activity.indicator.setupWithViewPager(activity.viewPager, true)
+                                activity.viewPager.adapter = activity.sliderAdapter
+                                //activity.sliderAdapter!!.notifyDataSetChanged()
                             }
                         }
                     } else {
@@ -264,5 +273,4 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
             }
         }
     }
-
 }

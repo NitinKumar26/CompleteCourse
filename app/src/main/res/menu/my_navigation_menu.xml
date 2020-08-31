@@ -14,4 +14,9 @@
         android:title="@string/notifications"
         android:icon="@drawable/notification_icon" />
 
+    <item
+        android:id="@+id/action_profile"
+        android:title="@string/profile"
+        android:icon="@drawable/profile_icon" />
+
 </menu>

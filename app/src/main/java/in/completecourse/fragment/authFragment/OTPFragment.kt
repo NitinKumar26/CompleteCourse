@@ -43,6 +43,11 @@ class OTPFragment : Fragment() {
             username = bundle.getString("edTvUsername")
             sendVerificationCode("+91$number")
         }
+
+        otp_view.setOtpCompletionListener {
+            progress_bar.visibility = View.GONE
+            verifyCode(it)
+        }
     }
 
     private fun sendVerificationCode(number: String) {
@@ -95,7 +100,8 @@ class OTPFragment : Fragment() {
                                             //User details are already in the database
                                             if (context != null) {
                                                 val prefManager = PrefManager(context!!)
-                                                prefManager.isFirstTimeLaunch = false
+                                                prefManager.setFirstTimeLaunch(false)
+                                                //prefManager.saveUser(documentSnapshot.getString("name"), documentSnapshot.getString("userid"))
                                                 val intent = Intent(context, MainActivity::class.java)
                                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                                 startActivity(intent)
@@ -110,7 +116,8 @@ class OTPFragment : Fragment() {
                                                     .addOnCompleteListener { progress_bar.visibility = View.GONE }.addOnSuccessListener {
                                                         if (context != null) {
                                                             val prefManager = PrefManager(context!!)
-                                                            prefManager.isFirstTimeLaunch = false
+                                                            prefManager.setFirstTimeLaunch(false)
+                                                            //prefManager.saveUser(username, authResult.user!!.uid)
                                                             val intent = Intent(context, MainActivity::class.java)
                                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                                             startActivity(intent)

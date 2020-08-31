@@ -41,6 +41,7 @@
                 android:textStyle="bold"/>
 
         </androidx.appcompat.widget.Toolbar>
+
     </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -48,6 +49,7 @@
         android:id="@+id/frame_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="56dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" >
     </FrameLayout>
 
@@ -62,22 +64,6 @@
         app:labelVisibilityMode="labeled"
         android:visibility="visible"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
-
-    <!--
-    <me.nitin.lib.NiceBottomBar
-        android:id="@+id/navigation"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_gravity="bottom"
-        android:background="@drawable/shape"
-        app:menu="@menu/bottom_navigation_menu"
-        app:labelVisibilityMode="unlabeled"
-        app:indicatorWidth="30dp"
-        app:indicatorInterpolator="anticipateOvershoot"
-        app:textColorActive="@color/colorPrimary"
-        app:indicatorColor="@color/colorPrimary"
-        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
-        -->
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

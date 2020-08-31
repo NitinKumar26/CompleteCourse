@@ -8,9 +8,10 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
--keepclassmembers class fqcn.of.javascript.interface.for.webview {
-   public class in.completecourse.PDFActivity;
-}
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+-keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
+-keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
@@ -32,7 +33,7 @@
   **[] $VALUES;
   public *;
 }
--keep class in.completecourse.model.**{*;}
+-keep class in.completecourse.model.*.*{*;}
 -keep public class com.google.android.gms.* { public *; }
 -dontwarn com.google.android.gms.**
 
@@ -51,10 +52,10 @@
 
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
-}
+    }
 
--keep class android.support.multidex.**
--keepclassmembernames class android.support.multidex.**{*;}
--keepclassmembers class android.support.multidex.** {*;}
--keep public class android.support.multidex.**
+-keep class android.support.multidex.*.*
+-keepclassmembernames class android.support.multidex.*.*{*;}
+-keepclassmembers class android.support.multidex.*.* {*;}
+-keep public class android.support.multidex.*.*
 

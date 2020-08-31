@@ -55,11 +55,11 @@ class WelcomeActivity : AppCompatActivity() {
         val myViewPagerAdapter = MyViewPagerAdapter()
         view_pager.adapter = myViewPagerAdapter
         view_pager.addOnPageChangeListener(viewPagerPageChangeListener)
-        btn_skip.setOnClickListener({ v: View? ->
+        btn_skip.setOnClickListener { v: View? ->
             val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()
-        })
+        }
 
         btn_next.setOnClickListener {
             // checking for last page

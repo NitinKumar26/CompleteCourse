@@ -7,10 +7,22 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.adcolony.sdk.AdColony
+import com.adcolony.sdk.AdColonyAppOptions
+import com.google.ads.mediation.adcolony.AdColonyAdapterUtils
+import com.google.ads.mediation.adcolony.AdColonyMediationAdapter
+import com.google.ads.mediation.unity.UnityMediationAdapter
+import com.google.android.gms.ads.AdFormat
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.mediation.InitializationCompleteCallback
+import com.google.android.gms.ads.mediation.MediationConfiguration
 import com.google.firebase.firestore.FirebaseFirestore
+import com.unity3d.ads.metadata.MetaData
+import java.util.*
+
 
 class SplashActivity : AppCompatActivity() {
     private val versionCodeApp:String = BuildConfig.VERSION_CODE.toString()
@@ -21,13 +33,72 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        MobileAds.initialize(this, this@SplashActivity.resources.getString(R.string.admob_app_id))
+        //GDPR consent for Unity Personalized Ads
+        val metaData = MetaData(this)
+        metaData.set("gdpr.consent", true)
+        metaData.commit()
 
-        if (isNetworkAvailable()){
-            getVersionCode()
-        }else{
-            Toast.makeText(this@SplashActivity, "Please Check your Internet Connection", Toast.LENGTH_LONG).show()
+        MobileAds.initialize(this@SplashActivity, getString(R.string.admob_app_id))
+
+        //GDPR Consent for AdColony Personalized Ads
+        val appOptions = AdColonyMediationAdapter.getAppOptions()
+        appOptions.setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true)
+        appOptions.setPrivacyConsentString(AdColonyAppOptions.GDPR, "1")
+        appOptions.keepScreenOn = true
+
+        AdColony.configure(this@SplashActivity, appOptions,
+                getString(R.string.ad_colony_app_id),
+                getString(R.string.ad_colony_interstitial_ad_zone),
+                getString(R.string.ad_colony_banner))
+
+        val adColonyInterstitial = Bundle()
+        adColonyInterstitial.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.ad_colony_app_id))
+        adColonyInterstitial.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.ad_colony_interstitial_ad_zone))
+
+        val adColonyBanner = Bundle()
+        adColonyBanner.putString(AdColonyAdapterUtils.KEY_APP_ID, getString(R.string.ad_colony_app_id))
+        adColonyBanner.putString(AdColonyAdapterUtils.KEY_ZONE_ID, getString(R.string.ad_colony_banner))
+
+        val adColonyMediationAdapter = AdColonyMediationAdapter()
+        val adColonyConfig: MutableList<MediationConfiguration> = ArrayList()
+
+        adColonyConfig.add(MediationConfiguration(AdFormat.INTERSTITIAL, adColonyInterstitial))
+        adColonyConfig.add(MediationConfiguration(AdFormat.BANNER, adColonyBanner))
+
+        adColonyMediationAdapter.initialize(this@SplashActivity, object : InitializationCompleteCallback {
+            override fun onInitializationSucceeded() {}
+            override fun onInitializationFailed(s: String) { /* Log.e("adColonyInit", s) */ } }, adColonyConfig)
+
+        val unityInterstitial = Bundle()
+        unityInterstitial.putString("gameId", getString(R.string.unity_game_id))
+        unityInterstitial.putString("zoneId", getString(R.string.unity_interstitial_placement_id))
+
+        val unityBanner = Bundle()
+        unityBanner.putString("gameId", getString(R.string.unity_game_id))
+        unityBanner.putString("zoneId", getString(R.string.unity_banner))
+
+        val unityConfig: MutableList<MediationConfiguration> = ArrayList()
+        unityConfig.add(MediationConfiguration(AdFormat.INTERSTITIAL, unityInterstitial))
+        unityConfig.add(MediationConfiguration(AdFormat.BANNER, unityBanner))
+
+        val adapter = UnityMediationAdapter()
+        adapter.initialize(this, object : InitializationCompleteCallback {
+            override fun onInitializationSucceeded() {}
+            override fun onInitializationFailed(s: String) {
+                Log.e("unityInit", s)
+            }
+        }, unityConfig)
+
+        /*
+        if (BuildConfig.DEBUG) {
+            val testDeviceIds = listOf("6DEE9D20290B46C296130C33458BC333")
+            val configuration = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+            MobileAds.setRequestConfiguration(configuration)
         }
+         */
+
+        if (isNetworkAvailable()){ getVersionCode() }
+        else{ Toast.makeText(this@SplashActivity, "Please Check your Internet Connection", Toast.LENGTH_LONG).show() }
     }
 
     private fun isNetworkAvailable(): Boolean {
@@ -59,7 +130,7 @@ class SplashActivity : AppCompatActivity() {
                         val session = PrefManager(applicationContext)
 
                         // Check if user is already logged in or not
-                        if (session.isFirstTimeLaunch) {
+                        if (session.isFirstTimeLaunch()) {
                             //First time user (Start WelcomeActivity)
                             val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
                             startActivity(intent)

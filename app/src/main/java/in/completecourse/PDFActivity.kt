@@ -15,7 +15,9 @@ class PDFActivity : AppCompatActivity() {
 
         val webView = findViewById<WebView>(R.id.webview)
         webView.settings.javaScriptEnabled = true
-        webView.loadUrl(url)
+        if (url != null) {
+            webView.loadUrl(url)
+        }
     }
 
     override fun onBackPressed() {

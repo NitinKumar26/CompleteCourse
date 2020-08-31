@@ -18,7 +18,8 @@ class UpdateVersionActivity : AppCompatActivity() {
         adView.loadAd(adRequest)
 
         update_now_button.setOnClickListener {
-            val intent = Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id=in.completecourse"))
+            val intent = Intent("android.intent.action.VIEW",
+                    Uri.parse("https://play.google.com/store/apps/details?id=in.completecourse"))
             startActivity(intent)
         }
     }

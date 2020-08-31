@@ -22,12 +22,39 @@
     <string name="please_enter_the_one_time_password">Please Enter the One Time Password</string>
     <string name="please_update_the_app_to_continue">Please update the app to continue</string>
     <string name="update_now">Update Now</string>
+    <string name="email">Email: %1$s</string>
+    <string name="username">Name: %1$s</string>
+    <string name="user_class">Class: %1$s</string>
+    <string name="school">School: %1$s</string>
+    <string name="contact">Contact: %1$s</string>
+    <string name="logout">Logout</string>
+    <string name="edit_profile">Edit Profile</string>
+
+
+    <string name="ad_colony_app_id">app1799e20f2fa449f49e</string>
+    <string name="ad_colony_interstitial_ad_zone">vz651a7e3a9c5f4c7d80</string>
+    <string name="ad_colony_banner">vzb749fd2c306848359e</string>
+
+    <string name="unity_game_id">3798079</string>
+    <string name="unity_interstitial_placement_id">CCInterstitial</string>
+    <string name="unity_banner">CCBanner</string>
+
     <string name="admob_app_id">ca-app-pub-4214231949040116~5453561917</string>
     <string name="interstitial_ad_id">ca-app-pub-4214231949040116/9935239151</string>
     <string name="banner_ad_unit">ca-app-pub-4214231949040116/9497999732</string>
+    <string name="native_ad">ca-app-pub-4214231949040116/7834426321</string>
+
+    <!--
+    <string name="banner_test">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="interstitial_test">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="native_advanced_test">ca-app-pub-3940256099942544/2247696110</string>
+    -->
+
+
     <string name="know_more">Know more..</string>
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
     <string name="mathematics">Mathematics</string>
+    <string name="profile">Profile</string>
     <string name="for_complete_success">For Complete Success</string>
     <string name="cc_logo">Complete course Banner</string>
     <string name="arrow">arrow</string>

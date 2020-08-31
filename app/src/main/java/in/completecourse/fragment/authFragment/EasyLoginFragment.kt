@@ -46,17 +46,17 @@ class EasyLoginFragment : Fragment() {
         pDialog = ProgressDialog(context)
         pDialog!!.setMessage("Please wait...")
 
-        send_verification_code_button.setOnClickListener(){
+        send_verification_code_button.setOnClickListener {
             sendVerificationCode()
         }
 
-        sign_with_google.setOnClickListener(){
+        sign_with_google.setOnClickListener {
             signInWithGoogle()
         }
 
     }
 
-    fun sendVerificationCode() {
+    private fun sendVerificationCode() {
         val usernameString = edTv_username_login.text.toString().trim { it <= ' ' }
         val mobileNumberString = edTv_mobile_number_login.text.toString().trim { it <= ' ' }
         if (HelperMethods.isNetworkAvailable(activity)) {
@@ -75,7 +75,7 @@ class EasyLoginFragment : Fragment() {
         }
     }
 
-    fun signInWithGoogle() {
+    private fun signInWithGoogle() {
         // [START config_signin]
         // Configure Google Sign In
         val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -118,24 +118,26 @@ class EasyLoginFragment : Fragment() {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         if (activity != null) {
             mAuth!!.signInWithCredential(credential)
-                    .addOnCompleteListener { task: Task<AuthResult?>? -> pDialog!!.hide() }
+                    .addOnCompleteListener { pDialog!!.hide() }
                     .addOnSuccessListener { authResult: AuthResult ->
                         if (context != null) {
                             if (authResult.user != null) {
                                 pDialog!!.show()
                                 db!!.collection("users").document(authResult.user!!.uid).get()
-                                        .addOnCompleteListener { task: Task<DocumentSnapshot?>? -> pDialog!!.dismiss() }
+                                        .addOnCompleteListener { pDialog!!.dismiss() }
                                         .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
                                             if (documentSnapshot.exists()) {
                                                 //User details are already in the database
                                                 if (context != null) {
                                                     val prefManager = PrefManager(context!!)
-                                                    prefManager.isFirstTimeLaunch = false
+                                                    prefManager.setFirstTimeLaunch(false)
+                                                    //prefManager.saveUser(documentSnapshot.getString("name"), documentSnapshot.getString("userid"))
                                                     val intent = Intent(context, MainActivity::class.java)
                                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                                     startActivity(intent)
                                                 }
-                                            } else {
+                                            }
+                                            else {
                                                 pDialog!!.dismiss()
                                                 //User details not available in database save them
                                                 val userDetails: MutableMap<String, String?> = HashMap()
@@ -147,7 +149,8 @@ class EasyLoginFragment : Fragment() {
                                                             .addOnCompleteListener { task: Task<Void?>? -> pDialog!!.dismiss() }.addOnSuccessListener { aVoid: Void? ->
                                                                 if (context != null) {
                                                                     val prefManager = PrefManager(context!!)
-                                                                    prefManager.isFirstTimeLaunch = false
+                                                                    prefManager.setFirstTimeLaunch(false)
+                                                                    //prefManager.saveUser(username, authResult.user!!.uid)
                                                                     val intent = Intent(context, MainActivity::class.java)
                                                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                                                     startActivity(intent)

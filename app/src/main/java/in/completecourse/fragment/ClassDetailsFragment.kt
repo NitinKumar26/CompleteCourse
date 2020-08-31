@@ -5,6 +5,7 @@ import `in`.completecourse.R
 import `in`.completecourse.VideoActivity
 import `in`.completecourse.adapter.ClassChaptersAdapter
 import `in`.completecourse.app.AppConfig
+import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.model.ChapterItem
 import android.content.Intent
 import android.net.Uri
@@ -19,11 +20,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.ButterKnife
 import com.bumptech.glide.Glide
+//import com.facebook.ads.AudienceNetworkAds
 import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
+import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
@@ -39,7 +42,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
-    private var chapterItemArrayList: ArrayList<ChapterItem>? = null
+    //private var chapterItemArrayList: ArrayList<ChapterItem>? = null
     private var adapter: ClassChaptersAdapter? = null
     private var mInterstitialAd: InterstitialAd? = null
     private var db: FirebaseFirestore? = null
@@ -54,10 +57,20 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private var mRating: String? = null
     private var adRequest: AdRequest? = null
 
+    //private var mAdapter: NewArrivalAdapter? = null
+
+    //The AdLoader used to load ads
+    private var adLoader: AdLoader? = null
+
+    //List of quizItems and native ads that populate the RecyclerView;
+    private val mRecyclerViewItems: MutableList<Any> = ArrayList()
+
+    //List of nativeAds that have been successfully loaded.
+    private val mNativeAds: MutableList<UnifiedNativeAd> = ArrayList()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view: View = inflater.inflate(R.layout.fragment_class_details, container, false)
-        ButterKnife.bind(this, view)
-        return view
+        //ButterKnife.bind(this, view)
+        return inflater.inflate(R.layout.fragment_class_details, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,9 +83,8 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         answer_key_view.isSelected = true
         important_concepts_view.isSelected = false
         video_view.isSelected = false
-        chapterItemArrayList = ArrayList<ChapterItem>()
-        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
+        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
         subjectStringFinal = arguments?.getString("studentSubject")
         classStringFinal = arguments?.getString("studentClass")
@@ -98,6 +110,8 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         other_view.setOnClickListener {
             otherView()
         }
+
+        //HelperMethods.initialize(this)
 
     }
 
@@ -240,9 +254,9 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             banner = documentSnapshot.getBoolean("banner")
             if ((adsense)!!) {
                 if ((banner)!!) {
-                    adView_banner_class_details.visibility = View.VISIBLE
+                    adView_banner_class_details!!.visibility = View.VISIBLE
                     linear_in_house.visibility = View.GONE
-                    adView_banner_class_details.loadAd(adRequest)
+                    adView_banner_class_details!!.loadAd(adRequest)
                 }
                 if ((interstitial)!!) {
                     mInterstitialAd!!.loadAd(AdRequest.Builder().build())
@@ -254,9 +268,10 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
                         }
                     }
                 }
-            } else if ((inHouse)!!) {
+            }
+            else if ((inHouse)!!) {
                 linear_in_house.visibility = View.VISIBLE
-                adView_banner_class_details.visibility = View.GONE
+                adView_banner_class_details!!.visibility = View.GONE
                 db!!.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener { document: QuerySnapshot ->
                     for (doc: QueryDocumentSnapshot in document) {
                         Log.d("document", doc.id + " => " + doc.data)
@@ -278,17 +293,18 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
                         startActivity(intentRate)
                     }
                 }.addOnFailureListener { e: Exception -> Log.e("exception", "exception" + e.message) }
-            } else {
-                adView_banner_class_details.visibility = View.GONE
+            }
+            else {
+                adView_banner_class_details!!.visibility = View.GONE
                 linear_in_house.visibility = View.GONE
             }
         }
     }
 
     private fun clear() {
-        val size = chapterItemArrayList!!.size
+        val size = mRecyclerViewItems.size
         if (size > 0) {
-            chapterItemArrayList!!.subList(0, size).clear()
+            mRecyclerViewItems.subList(0, size).clear()
             adapter!!.notifyItemRangeRemoved(0, size)
         }
     }
@@ -302,22 +318,25 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
         val intent = Intent(activity, PDFActivity::class.java)
         val intentVideo = Intent(activity, VideoActivity::class.java)
-        when {
-            answer_key_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].chapterKaFlipURL)
-                activity?.startActivity(intent)
-            }
-            important_concepts_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].conceptKaFlipURL)
-                activity?.startActivity(intent)
-            }
-            video_view.isSelected -> {
-                intentVideo.putExtra("videoID", chapterItemArrayList!![position].chapterKaVideoID)
-                activity?.startActivity(intentVideo)
-            }
-            other_view.isSelected -> {
-                intent.putExtra("url", chapterItemArrayList!![position].otherImportantQues)
-                activity?.startActivity(intent)
+        if (adapter!!.getItemViewType(position) == 0) {
+            val chapterItem: ChapterItem = mRecyclerViewItems[position] as ChapterItem
+            when {
+                answer_key_view.isSelected -> {
+                    intent.putExtra("url", chapterItem.chapterKaFlipURL)
+                    activity?.startActivity(intent)
+                }
+                important_concepts_view.isSelected -> {
+                    intent.putExtra("url", chapterItem.conceptKaFlipURL)
+                    activity?.startActivity(intent)
+                }
+                video_view.isSelected -> {
+                    intentVideo.putExtra("videoID", chapterItem.chapterKaVideoID)
+                    activity?.startActivity(intentVideo)
+                }
+                other_view.isSelected -> {
+                    intent.putExtra("url", chapterItem.otherImportantQues)
+                    activity?.startActivity(intent)
+                }
             }
         }
     }
@@ -374,7 +393,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
                             item.chapterKaVideoID = chapterObject.getString("ChapterKaVideo")
                             item.otherImportantQues = chapterObject.getString("otherimgques")
                             item.chapterSerial = (i + 1).toString() + "."
-                            activity!!.chapterItemArrayList!!.add(item)
+                            activity!!.mRecyclerViewItems.add(item)
                         }
                     } else {
                         val msg = jsonResponse.getString("message")
@@ -403,7 +422,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         override fun onPostExecute(jsonObject: String?) {
             val activity = activityWeakReference.get()
             activity!!.progress_bar.visibility = View.GONE
-            activity.adapter = ClassChaptersAdapter((activity.activity)!!, (activity.chapterItemArrayList)!!)
+            activity.adapter = ClassChaptersAdapter((activity.activity)!!, (activity.mRecyclerViewItems))
             activity.recyclerView.adapter = activity.adapter
             val count = activity.adapter!!.itemCount
             activity.text_total_answer_key.text = count.toString()
@@ -411,7 +430,64 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             activity.text_total_video.text = count.toString()
             activity.text_total_other.text = count.toString()
             activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, activity))
+
+            activity.loadNativeAds()
         }
 
+    }
+
+    private fun insertAdsInMenuItems(mNativeAds: MutableList<UnifiedNativeAd>, mRecyclerViewItems: MutableList<Any>) {
+        if (mNativeAds.size <= 0) {
+            return
+        }
+        val offset = mRecyclerViewItems.size / mNativeAds.size + 1
+        var index = 0
+        for (ad in mNativeAds) {
+            mRecyclerViewItems.add(index, ad)
+            index += offset
+            adapter!!.setItems(mRecyclerViewItems)
+            adapter!!.notifyDataSetChanged()
+        }
+    }
+
+    private fun loadNativeAds() {
+        if (context != null) {
+            val builder = AdLoader.Builder(context, getString(R.string.native_ad))
+            adLoader = builder.forUnifiedNativeAd { unifiedNativeAd ->
+                // A native ad loaded successfully, check if the ad loader has finished loading
+                // and if so, insert the ads into the list.
+                mNativeAds.add(unifiedNativeAd)
+                if (!adLoader!!.isLoading) {
+                    insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
+                    //adapter.notifyDataSetChanged();
+                }
+            }.withAdListener(
+                    object : AdListener() {
+                        override fun onAdFailedToLoad(errorCode: Int) {
+                            // A native ad failed to load, check if the ad loader has finished loading
+                            // and if so, insert the ads into the list.
+                            Log.e("MainActivity", "The previous native ad failed to load. Attempting to" + " load another.")
+                            if (!adLoader!!.isLoading) {
+                                insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
+                                //adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        override fun onAdClicked() {
+                            //super.onAdClicked();
+                            //Ad Clicked
+                            //Log.e("adclicked", "yes")
+                        }
+                    }).build()
+
+            //Number of Native Ads to load
+            val NUMBER_OF_ADS: Int = if (mRecyclerViewItems.size <= 9) 3 else {
+                mRecyclerViewItems.size / 5 + 1
+            }
+
+            // Load the Native ads.
+            adLoader!!.loadAds(AdRequest.Builder().build(), NUMBER_OF_ADS)
+            Log.e("numberOfAds", NUMBER_OF_ADS.toString())
+        }
     }
 }

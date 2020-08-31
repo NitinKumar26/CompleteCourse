@@ -6,7 +6,6 @@ import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.utils.ListConfig
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -31,7 +30,7 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
         classString = intent.getStringExtra("classCode")
         subjectString = intent.getStringExtra("subjectCode")
         spinPosition = intent.getStringExtra("spinPosition")
-        Log.e("spinPosition", spinPosition)
+        //Log.e("spinPosition", spinPosition)
 
         viewpagerr.pageMargin = -HelperMethods.getPageMargin(this@SubjectActivity)
         val adapter = CarouselPagerAdapter(this, supportFragmentManager, classString, subjectString)

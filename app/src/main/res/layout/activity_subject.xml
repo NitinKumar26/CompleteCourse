@@ -129,6 +129,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/margin_12"/>
         </com.google.android.material.appbar.AppBarLayout>
+
     <View
         android:background="@drawable/shadow_top_to_bottom"
         android:visibility="visible"
@@ -137,6 +138,7 @@
         android:layout_centerVertical="true"
         app:layout_anchor="@+id/appBar"
         app:layout_anchorGravity="bottom"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
