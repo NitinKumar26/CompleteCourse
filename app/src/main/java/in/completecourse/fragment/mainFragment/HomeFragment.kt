@@ -19,11 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ads.mediationtestsuite.MediationTestSuite
-//import com.facebook.ads.InterstitialAd
-//import com.google.ads.mediation.facebook.FacebookAdapter
-//import com.google.ads.mediation.facebook.FacebookMediationAdapter
-//import com.google.android.ads.mediationtestsuite.MediationTestSuite
-import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -40,7 +35,6 @@ import java.util.*
 class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     private var updateList: ArrayList<Update>? = null
     private var sliderAdapter: SliderAdapter? = null
-    //private var interstitialAd: InterstitialAd? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -139,12 +133,11 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //interstitialAd = InterstitialAd(context, "1208878546155354_1208977166145492")
+
         val cardList: ArrayList<CardModel> = ArrayList<CardModel>()
         cardList.add(CardModel(R.drawable.manual_search, "Manual Search"))
         cardList.add(CardModel(R.drawable.scan_qr, "Scan QR Code"))
-        //val indicator: TabLayout = view.findViewById(R.id.indicator)
-        //val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
+
         recycler_view.setHasFixedSize(true)
         //use a linear layout manager
         val gridLayoutManager = GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
@@ -165,7 +158,8 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
             Toast.makeText(view.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
         }
 
-        //if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
+        if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
+
     }
 
     private inner class SliderTimer : TimerTask() {
@@ -254,7 +248,6 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
         }
 
         override fun onPostExecute(jsonObject: String?) {}
-
     }
 
     companion object {

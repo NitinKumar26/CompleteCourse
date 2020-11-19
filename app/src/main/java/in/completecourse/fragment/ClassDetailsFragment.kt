@@ -5,7 +5,6 @@ import `in`.completecourse.R
 import `in`.completecourse.VideoActivity
 import `in`.completecourse.adapter.ClassChaptersAdapter
 import `in`.completecourse.app.AppConfig
-import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.model.ChapterItem
 import android.content.Intent
 import android.net.Uri
@@ -21,7 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-//import com.facebook.ads.AudienceNetworkAds
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
@@ -42,10 +40,8 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
-    //private var chapterItemArrayList: ArrayList<ChapterItem>? = null
     private var adapter: ClassChaptersAdapter? = null
     private var mInterstitialAd: InterstitialAd? = null
-    private var db: FirebaseFirestore? = null
     private var adsense: Boolean? = null
     private var inHouse: Boolean? = null
     private var interstitial: Boolean? = null
@@ -57,8 +53,6 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private var mRating: String? = null
     private var adRequest: AdRequest? = null
 
-    //private var mAdapter: NewArrivalAdapter? = null
-
     //The AdLoader used to load ads
     private var adLoader: AdLoader? = null
 
@@ -69,13 +63,11 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private val mNativeAds: MutableList<UnifiedNativeAd> = ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        //ButterKnife.bind(this, view)
         return inflater.inflate(R.layout.fragment_class_details, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        db = FirebaseFirestore.getInstance()
         adRequest = AdRequest.Builder().build()
         setAds()
         mInterstitialAd = InterstitialAd(activity)
@@ -149,6 +141,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         //Adhyay TextView
         tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
+
     private fun importantConcepts() {
         important_concepts_view.isSelected = true
         answer_key_view.isSelected = false
@@ -182,6 +175,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         }
         tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
+
     private fun video() {
         video_view.isSelected = true
         answer_key_view.isSelected = false
@@ -214,6 +208,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         //Adhyay Ka Naam TextView
         tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
+
     private fun otherView() {
         other_view.isSelected = true
         answer_key_view.isSelected = false
@@ -247,7 +242,8 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     }
 
     private fun setAds() {
-        db!!.collection("flags").document("ads_flags").get().addOnSuccessListener { documentSnapshot ->
+        FirebaseFirestore.getInstance()
+                .collection("flags").document("ads_flags").get().addOnSuccessListener { documentSnapshot ->
             adsense = documentSnapshot.getBoolean("adsense")
             inHouse = documentSnapshot.getBoolean("in_house")
             interstitial = documentSnapshot.getBoolean("interstitial")
@@ -272,7 +268,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             else if ((inHouse)!!) {
                 linear_in_house.visibility = View.VISIBLE
                 adView_banner_class_details!!.visibility = View.GONE
-                db!!.collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener { document: QuerySnapshot ->
+                FirebaseFirestore.getInstance().collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener { document: QuerySnapshot ->
                     for (doc: QueryDocumentSnapshot in document) {
                         Log.d("document", doc.id + " => " + doc.data)
                         mBannerUrl = doc.getString("banner_url")

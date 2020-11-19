@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.ButterKnife
 import kotlinx.android.synthetic.main.fragment_notification.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -31,7 +30,6 @@ class NotificationFragment : Fragment(), NotificationAdapter.ClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view: View = inflater.inflate(R.layout.fragment_notification, container, false)
-        ButterKnife.bind(this, view)
         return view
     }
 

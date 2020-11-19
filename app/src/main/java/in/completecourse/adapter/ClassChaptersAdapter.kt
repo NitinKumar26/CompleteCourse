@@ -42,7 +42,7 @@ class ClassChaptersAdapter(private val context: Context, list: List<Any>?) : Rec
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): RecyclerView.ViewHolder {
         return when(i) {
             UNIFIED_NATIVE_AD_VIEW_TYPE -> {
-                val unifiedNativeLayoutView: View = LayoutInflater.from(context).inflate(R.layout.unified_class_details, viewGroup, false)
+                val unifiedNativeLayoutView: View = LayoutInflater.from(context).inflate(R .layout.unified_class_details, viewGroup, false)
                 UnifiedNativeAdViewHolder(unifiedNativeLayoutView)
             }
             MENU_ITEM_VIEW_TYPE -> {
@@ -61,7 +61,8 @@ class ClassChaptersAdapter(private val context: Context, list: List<Any>?) : Rec
             UNIFIED_NATIVE_AD_VIEW_TYPE -> {
                 val nativeAd = chapterItemsList!![i] as UnifiedNativeAd
                 populateAdView(nativeAd, (myViewHolder as UnifiedNativeAdViewHolder).adView)
-            }MENU_ITEM_VIEW_TYPE -> {
+            }
+            MENU_ITEM_VIEW_TYPE -> {
             val holder: MyViewHolder = myViewHolder as MyViewHolder
             val chapterItem: ChapterItem = chapterItemsList?.get(i) as ChapterItem
             holder.textView.text = chapterItem.chapterKaName
@@ -115,7 +116,7 @@ class ClassChaptersAdapter(private val context: Context, list: List<Any>?) : Rec
 
     }
 
-    fun populateAdView(nativeAd: UnifiedNativeAd, adView: UnifiedNativeAdView) {
+    private fun populateAdView(nativeAd: UnifiedNativeAd, adView: UnifiedNativeAdView) {
         //Some assets are guaranteed to be in every UnifiedNativeAd
         (adView.headlineView as TextView).text = nativeAd.headline
         //((TextView) adView.getBodyView()).setText(nativeAd.getBody());

@@ -1,0 +1,108 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical"
+    card_view:cardCornerRadius="@dimen/cardview_default_radius"
+    card_view:cardElevation="@dimen/cardview_default_elevation"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.gms.ads.formats.UnifiedNativeAdView
+        android:id="@+id/unified_ad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="2dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.gms.ads.formats.MediaView
+                    android:contentDescription="@string/thumbnail"
+                    android:id="@+id/ad_media"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/card_cover_height"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:scaleType="fitXY" />
+
+                <TextView
+                    android:id="@+id/ad_headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ad_media"
+                    android:lines="2"
+                    android:paddingTop="@dimen/album_title_padding"
+                    android:paddingLeft="@dimen/card_title_padding"
+                    android:paddingRight="@dimen/card_title_padding"
+                    android:textStyle="bold"
+                    android:textColor="#111"
+                    android:text="@string/new_arrivals"
+                    android:fontFamily="@font/raleway"
+                    android:textSize="11dp"
+                    tools:ignore="SpUsage"/>
+
+                <TextView
+                    android:id="@+id/ad_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ad_headline"
+                    android:lines="2"
+                    android:paddingTop="@dimen/card_title_padding"
+                    android:paddingLeft="@dimen/card_title_padding"
+                    android:paddingRight="@dimen/card_title_padding"
+                    android:textColor="#1a237e"
+                    android:text="@string/new_arrivals"
+                    android:fontFamily="@font/raleway"
+                    android:textSize="11dp"
+                    tools:ignore="SpUsage"
+                    />
+
+                <RatingBar
+                    android:id="@+id/ad_stars"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:layout_marginStart="4dp"
+                    android:layout_below="@id/ad_media"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="4dp"
+                    />
+
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title"
+                    android:layout_marginEnd="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="end"
+                    android:paddingTop="@dimen/card_title_padding"
+                    android:fontFamily="@font/raleway"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="12dp"
+                    tools:ignore="SpUsage"/>
+
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </com.google.android.gms.ads.formats.UnifiedNativeAdView>
+
+</androidx.cardview.widget.CardView>

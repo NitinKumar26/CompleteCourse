@@ -4,6 +4,7 @@ import `in`.completecourse.MainActivity
 import `in`.completecourse.helper.PrefManager
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,13 +53,15 @@ class OTPFragment : Fragment() {
 
     private fun sendVerificationCode(number: String) {
         progress_bar.visibility = View.VISIBLE
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+        activity?.let {
+            PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
                 60,
                 TimeUnit.SECONDS,
-                TaskExecutors.MAIN_THREAD,
+                    it,
                 mCallBack
         )
+        }
     }
 
     private val mCallBack: OnVerificationStateChangedCallbacks = object : OnVerificationStateChangedCallbacks() {
@@ -117,14 +120,16 @@ class OTPFragment : Fragment() {
                                                         if (context != null) {
                                                             val prefManager = PrefManager(context!!)
                                                             prefManager.setFirstTimeLaunch(false)
-                                                            //prefManager.saveUser(username, authResult.user!!.uid)
                                                             val intent = Intent(context, MainActivity::class.java)
                                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                                             startActivity(intent)
                                                         }
                                                     }.addOnFailureListener { e: Exception -> Toast.makeText(context, e.message, Toast.LENGTH_LONG).show() }
                                         }
-                                    }.addOnFailureListener { e: Exception -> Toast.makeText(context, e.message, Toast.LENGTH_LONG).show() }
+                                    }.addOnFailureListener { e: Exception ->
+                                        Log.e("exception", e.message.toString())
+                                        Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                                    }
                         }
                     }
                 }
