@@ -20,7 +20,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.unity3d.ads.metadata.MetaData
 import java.util.*
 
-
 class SplashActivity : AppCompatActivity() {
     private val versionCodeApp:String = BuildConfig.VERSION_CODE.toString()
     private var versionCode:String? = null
@@ -34,7 +33,7 @@ class SplashActivity : AppCompatActivity() {
         metaData.set("gdpr.consent", true)
         metaData.commit()
 
-        MobileAds.initialize(this@SplashActivity, getString(R.string.admob_app_id))
+        MobileAds.initialize(this@SplashActivity)
 
         val unityInterstitial = Bundle()
         unityInterstitial.putString("gameId", getString(R.string.unity_game_id))

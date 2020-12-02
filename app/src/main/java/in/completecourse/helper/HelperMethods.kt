@@ -128,6 +128,7 @@ object HelperMethods {
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
+
     /*
     @JvmStatic
     fun initialize(context: Context?) {
@@ -162,6 +163,5 @@ object HelperMethods {
         override fun onRequestDisallowInterceptTouchEvent(b: Boolean) {}
 
     }
-
 
 }
