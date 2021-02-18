@@ -8,6 +8,7 @@ import java.net.ProtocolException
 import java.net.URL
 
 class HttpHandler {
+
     fun makeServiceCall(reqUrl: String?): String? {
         var response: String? = null
         try {

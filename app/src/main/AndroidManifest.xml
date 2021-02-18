@@ -40,30 +40,38 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".SearchActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".WelcomeActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".ScanActivity"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".SubjectActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".PDFActivity"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".CompetitionUpdatesActivity"
             android:theme="@style/dialog" />
 
-        <activity android:name=".UpdateVersionActivity" />
+        <activity android:name=".UpdateVersionActivity"
+            />
 
         <activity android:name=".VideoActivity"
             android:screenOrientation="landscape"
