@@ -26,6 +26,7 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.formats.UnifiedNativeAd
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_new_arrival.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -117,7 +118,7 @@ class NewArrivalFragment : Fragment(){
             newArrivalFragment!!.mAdapter!!.notifyDataSetChanged()
             newArrivalFragment.progressbar_fragment_store.visibility = View.INVISIBLE
 
-            newArrivalFragment.loadNativeAds()
+            newArrivalFragment.checkIfAdsOn()
 
             newArrivalFragment.recycler_view_store.addOnItemTouchListener(HelperMethods.RecyclerTouchListener(newArrivalFragment.context, object : HelperMethods.ClickListener {
                 override fun onClick(position: Int) {
@@ -132,7 +133,6 @@ class NewArrivalFragment : Fragment(){
             }))
         }
     }
-
 
     private fun insertAdsInMenuItems(mNativeAds: MutableList<UnifiedNativeAd>, mRecyclerViewItems: MutableList<Any>) {
         if (mNativeAds.size <= 0) {
@@ -187,6 +187,16 @@ class NewArrivalFragment : Fragment(){
             adLoader!!.loadAds(AdRequest.Builder().build(), NUMBER_OF_ADS)
             Log.e("numberOfAds", NUMBER_OF_ADS.toString())
         }
+    }
+
+    private fun checkIfAdsOn() {
+        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.getBoolean("adsense") == true) {
+                    Log.e("this", "yes")
+                    loadNativeAds()
+                }
+            }
     }
 
 }

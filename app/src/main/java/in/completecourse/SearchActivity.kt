@@ -10,6 +10,7 @@ import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity(), View.OnClickListener {
@@ -22,11 +23,10 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
         title = resources.getString(R.string.app_name)
 
-        adRequest = AdRequest.Builder().build()
         mInterstitialAd = InterstitialAd(this)
-        mInterstitialAd!!.adUnitId = getString(R.string.interstitial_ad_id)
-        mInterstitialAd!!.loadAd(adRequest)
+        mInterstitialAd?.adUnitId = getString(R.string.interstitial_ad_id)
 
+        checkIfAdsOn()
 
         //Find the required Views
         layout_physics.setOnClickListener(this)
@@ -258,6 +258,15 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                     intent.putExtra("spinPosition", classString.toString())
                     startActivity(intent)
                 }
+            }
+        }
+    }
+
+    private fun checkIfAdsOn(){
+        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.getBoolean("adsense") == true){
+                adRequest = AdRequest.Builder().build()
+                mInterstitialAd?.loadAd(adRequest)
             }
         }
     }

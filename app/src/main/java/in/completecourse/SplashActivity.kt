@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.ads.mediation.unity.UnityMediationAdapter
 import com.google.android.gms.ads.AdFormat
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.initialization.InitializationStatus
 import com.google.android.gms.ads.mediation.InitializationCompleteCallback
 import com.google.android.gms.ads.mediation.MediationConfiguration
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +28,86 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
+        checkIfAdsOn()
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val activeNetworkInfo: NetworkInfo?
+        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
+
+    private fun getVersionCode(){
+        FirebaseFirestore.getInstance().collection("flags").document("version_code").get().addOnSuccessListener { documentSnapshot ->
+            versionCode = documentSnapshot.get("current_version_code").toString()
+            if (versionCode != null) {
+                val session = PrefManager(applicationContext)
+                when {
+                    versionCode.equals(versionCodeApp) -> {
+                        val splashTimeOut = 1500
+
+                        /*
+                    Showing splash screen with a timer. This will be useful when you
+                    want to showcase your app logo/company
+                     */
+                        /*
+                     * Showing splash screen with a timer. This will be useful when you
+                     * want to show case your app logo / company
+                     */
+                        Handler().postDelayed({
+
+                            // This method will be executed once the timer is over
+                            // Start your app main activity
+                            // Session manager
+
+
+                            // Check if user is already logged in or not
+                            if (session.isFirstTimeLaunch()) {
+                                //First time user (Start WelcomeActivity)
+                                val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                //User is already logged (Start MainActivity)
+                                val i = Intent(this@SplashActivity, MainActivity::class.java)
+                                startActivity(i)
+                                finish()
+                            }
+                        }, splashTimeOut.toLong())
+                    }
+                    versionCode!!.toInt() < versionCodeApp.toInt() -> {
+                        //User is on the pre-release version {Start WelcomeActivity}
+                        /*
+                    This case happens only when developer increase the version code of the app
+                    and try to use the app for testing or when developer forget to increase the version code in the console but the latest
+                    version of the app is live in Google Play
+                     */
+                        // Check if user is already logged in or not
+                        if (session.isFirstTimeLaunch()) {
+                            //First time user (Start WelcomeActivity)
+                            val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            //User is already logged (Start MainActivity)
+                            val i = Intent(this@SplashActivity, MainActivity::class.java)
+                            startActivity(i)
+                            finish()
+                        }
+                    }
+                    else -> {
+                        //User is not on the latest version {Start UpdateVersion Activity}
+                        val intent = Intent(this, UpdateVersionActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initializeMobileAds(){
         //GDPR consent for Unity Personalized Ads
         val metaData = MetaData(this)
         metaData.set("gdpr.consent", true)
@@ -51,6 +131,7 @@ class SplashActivity : AppCompatActivity() {
         adapter.initialize(this, object : InitializationCompleteCallback {
             override fun onInitializationSucceeded() {}
             override fun onInitializationFailed(s: String) {
+
                 Log.e("unityInit", s)
             }
         }, unityConfig)
@@ -62,73 +143,20 @@ class SplashActivity : AppCompatActivity() {
             MobileAds.setRequestConfiguration(configuration)
         }
         */
-
-        if (isNetworkAvailable()){ getVersionCode() }
-        else{ Toast.makeText(this@SplashActivity, "Please Check your Internet Connection", Toast.LENGTH_LONG).show() }
     }
 
-    private fun isNetworkAvailable(): Boolean {
-        val activeNetworkInfo: NetworkInfo?
-        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        activeNetworkInfo = connectivityManager.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
-    }
-
-    private fun getVersionCode(){
-        FirebaseFirestore.getInstance().collection("flags").document("version_code").get().addOnSuccessListener { documentSnapshot ->
-            versionCode = documentSnapshot.get("current_version_code").toString()
-            if (versionCode != null) {
-                when {
-                    versionCode.equals(versionCodeApp) -> {
-                        val splashTimeOut = 1500
-                        /*
-                    Showing splash screen with a timer. This will be useful when you
-                    want to showcase your app logo/company
-                     */
-                        /*
-                     * Showing splash screen with a timer. This will be useful when you
-                     * want to show case your app logo / company
-                     */
-                        Handler().postDelayed({
-
-                            // This method will be executed once the timer is over
-                            // Start your app main activity
-                            // Session manager
-                            val session = PrefManager(applicationContext)
-
-                            // Check if user is already logged in or not
-                            if (session.isFirstTimeLaunch()) {
-                                //First time user (Start WelcomeActivity)
-                                val intent = Intent(this@SplashActivity, WelcomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                //User is already logged (Start MainActivity)
-                                val i = Intent(this@SplashActivity, MainActivity::class.java)
-                                startActivity(i)
-                                finish()
-                            }
-                        }, splashTimeOut.toLong())
-                    }
-                    versionCode!!.toInt() < versionCodeApp.toInt() -> {
-                        //User is on the pre-release version {Start WelcomeActivity}
-                        /*
-                    This case happens only when developer increase the version code of the app
-                    and try to use the app for testing or when developer forget to increase the version code in the console but the latest
-                    version of the app is live in Google Play
-                     */
-                        val intent = Intent(this, WelcomeActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }
-                    else -> {
-                        //User is not on the latest version {Start UpdateVersion Activity}
-                        val intent = Intent(this, UpdateVersionActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }
-                }
+    private fun checkIfAdsOn(){
+        if (isNetworkAvailable()){
+        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.getBoolean("adsense") == true) {
+                Log.e("this", "yes")
+                initializeMobileAds()
+                getVersionCode()
+            }else {
+                Log.e("this", "no")
+                getVersionCode()
             }
-        }
+            }
+        }else Toast.makeText(this@SplashActivity, "Please Check your Internet Connection", Toast.LENGTH_LONG).show()
     }
 }

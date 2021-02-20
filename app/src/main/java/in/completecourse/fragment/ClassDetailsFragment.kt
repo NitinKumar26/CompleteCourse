@@ -68,10 +68,10 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adRequest = AdRequest.Builder().build()
-        setAds()
+
         mInterstitialAd = InterstitialAd(activity)
         mInterstitialAd!!.adUnitId = activity!!.resources.getString(R.string.interstitial_ad_id)
+
         answer_key_view.isSelected = true
         important_concepts_view.isSelected = false
         video_view.isSelected = false
@@ -241,62 +241,6 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         tv_adhyay_ka_naam.visibility = View.VISIBLE
     }
 
-    private fun setAds() {
-        FirebaseFirestore.getInstance()
-                .collection("flags").document("ads_flags").get().addOnSuccessListener { documentSnapshot ->
-            adsense = documentSnapshot.getBoolean("adsense")
-            inHouse = documentSnapshot.getBoolean("in_house")
-            interstitial = documentSnapshot.getBoolean("interstitial")
-            banner = documentSnapshot.getBoolean("banner")
-            if ((adsense)!!) {
-                if ((banner)!!) {
-                    adView_banner_class_details!!.visibility = View.VISIBLE
-                    linear_in_house.visibility = View.GONE
-                    adView_banner_class_details!!.loadAd(adRequest)
-                }
-                if ((interstitial)!!) {
-                    mInterstitialAd!!.loadAd(AdRequest.Builder().build())
-                    mInterstitialAd!!.adListener = object : AdListener() {
-                        override fun onAdClosed() {
-                            super.onAdClosed()
-                            //Load the next interstitial ad
-                            mInterstitialAd!!.loadAd(AdRequest.Builder().build())
-                        }
-                    }
-                }
-            }
-            else if ((inHouse)!!) {
-                linear_in_house.visibility = View.VISIBLE
-                adView_banner_class_details!!.visibility = View.GONE
-                FirebaseFirestore.getInstance().collection("in_house_ads").whereEqualTo("is_live", true).get().addOnSuccessListener { document: QuerySnapshot ->
-                    for (doc: QueryDocumentSnapshot in document) {
-                        Log.d("document", doc.id + " => " + doc.data)
-                        mBannerUrl = doc.getString("banner_url")
-                        mIconUrl = doc.getString("icon_url")
-                        mInstallUrl = doc.getString("install_url")
-                        mName = doc.getString("name")
-                        mRating = doc.get("rating").toString()
-                    }
-                    if (context != null) {
-                        Glide.with((context)!!).load(mBannerUrl).into((app_banner)!!)
-                        Glide.with((context)!!).load(mIconUrl).into((app_icon)!!)
-                    }
-                    app_name.text = mName
-                    app_rating.text = mRating
-                    btn_install.setOnClickListener {
-                        val intentRate = Intent("android.intent.action.VIEW",
-                                Uri.parse(mInstallUrl))
-                        startActivity(intentRate)
-                    }
-                }.addOnFailureListener { e: Exception -> Log.e("exception", "exception" + e.message) }
-            }
-            else {
-                adView_banner_class_details!!.visibility = View.GONE
-                linear_in_house.visibility = View.GONE
-            }
-        }
-    }
-
     private fun clear() {
         val size = mRecyclerViewItems.size
         if (size > 0) {
@@ -427,7 +371,7 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             activity.text_total_other.text = count.toString()
             activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, activity))
 
-            activity.loadNativeAds()
+            activity.checkIfAdsOn()
         }
 
     }
@@ -485,5 +429,25 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             adLoader!!.loadAds(AdRequest.Builder().build(), NUMBER_OF_ADS)
             Log.e("numberOfAds", NUMBER_OF_ADS.toString())
         }
+    }
+
+    private fun checkIfAdsOn() {
+        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.getBoolean("adsense") == true) {
+                    Log.e("this", "yes")
+                    loadNativeAds()
+                    adRequest = AdRequest.Builder().build()
+                    adView_banner_class_details!!.loadAd(adRequest)
+                    mInterstitialAd!!.loadAd(AdRequest.Builder().build())
+                    mInterstitialAd!!.adListener = object : AdListener() {
+                        override fun onAdClosed() {
+                            super.onAdClosed()
+                            //Load the next interstitial ad
+                            mInterstitialAd!!.loadAd(AdRequest.Builder().build())
+                        }
+                    }
+                }
+            }
     }
 }

@@ -18,7 +18,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ads.mediationtestsuite.MediationTestSuite
+//import com.google.android.ads.mediationtestsuite.MediationTestSuite
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -158,7 +158,7 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
             Toast.makeText(view.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
         }
 
-        if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
+        //if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
 
     }
 

@@ -93,7 +93,7 @@ class EasyLoginFragment : Fragment() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 //Google sign in was successful, authenticate with Firebase
-                Toast.makeText(context, "Google Sign in successful ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Dear Learner! Welcome to Complete Course", Toast.LENGTH_SHORT).show()
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
                     username = account.displayName

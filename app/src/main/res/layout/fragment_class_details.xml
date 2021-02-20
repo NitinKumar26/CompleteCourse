@@ -24,112 +24,16 @@
             android:indeterminate="true"
             android:indeterminateBehavior="repeat"/>
 
-        <LinearLayout
-            android:id="@+id/linear_ads"
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView_banner_class_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@id/progress_bar">
-
-            <com.google.android.gms.ads.AdView
-                xmlns:ads="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/adView_banner_class_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                ads:adSize="BANNER"
-                android:visibility="gone"
-                tools:visibility="gone"
-                ads:adUnitId="@string/banner_ad_unit"/>
-
-            <LinearLayout
-                android:id="@+id/linear_in_house"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:weightSum="3"
-                android:visibility="gone"
-                tools:visibility="visible"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_little">
-
-                <ImageView
-                    android:id="@+id/app_banner"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    tools:src="@drawable/banner"/>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.25">
-
-                    <ImageView
-                        android:id="@+id/app_icon"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginTop="4dp"
-                        tools:src="@drawable/ic_launcher_kids_gk" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:layout_toEndOf="@id/app_icon"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:id="@+id/app_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            tools:text="App Name"
-                            android:textColor="@color/colorBlack"
-                            />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:id="@+id/app_rating"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                tools:text="4.5"
-                                android:drawableEnd="@drawable/ic_star"
-                                android:drawablePadding="2dp"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/free"
-                                android:layout_marginStart="4dp"/>
-
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </RelativeLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_install"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/install"
-                    android:layout_weight="0.75"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:textSize="9sp"
-                    app:backgroundTint="#43a047"
-                    app:elevation="0dp"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
+            android:layout_marginTop="5dp"
+            ads:adSize="BANNER"
+            android:visibility="gone"
+            tools:visibility="visible"
+            ads:adUnitId="@string/banner_ad_unit"/>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -141,7 +45,7 @@
             android:layout_marginRight="@dimen/margin_12"
             android:layout_marginBottom="@dimen/margin_12"
             android:baselineAligned="false"
-            android:layout_below="@id/linear_ads"
+            android:layout_below="@id/adView_banner_class_details"
             android:weightSum="4">
             <RelativeLayout
                 android:orientation="horizontal"
