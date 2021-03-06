@@ -1,66 +1,39 @@
 package `in`.completecourse.fragment
 
+//import com.squareup.okhttp.RequestBody
 import `in`.completecourse.PDFActivity
 import `in`.completecourse.R
 import `in`.completecourse.VideoActivity
 import `in`.completecourse.adapter.ClassChaptersAdapter
-import `in`.completecourse.app.AppConfig
 import `in`.completecourse.model.ChapterItem
+import `in`.completecourse.utils.APIService
 import android.content.Intent
-import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
-import com.google.android.gms.ads.formats.UnifiedNativeAd
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.android.synthetic.main.fragment_class_details.*
-import org.json.JSONException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import retrofit2.Retrofit
 import java.io.*
-import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.collections.HashMap
 
 class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private var adapter: ClassChaptersAdapter? = null
-    private var mInterstitialAd: InterstitialAd? = null
-    private var adsense: Boolean? = null
-    private var inHouse: Boolean? = null
-    private var interstitial: Boolean? = null
-    private var banner: Boolean? = null
-    private var mBannerUrl: String? = null
-    private var mIconUrl: String? = null
-    private var mInstallUrl: String? = null
-    private var mName: String? = null
-    private var mRating: String? = null
-    private var adRequest: AdRequest? = null
-
-    //The AdLoader used to load ads
-    private var adLoader: AdLoader? = null
-
-    //List of quizItems and native ads that populate the RecyclerView;
-    private val mRecyclerViewItems: MutableList<Any> = ArrayList()
-
-    //List of nativeAds that have been successfully loaded.
-    private val mNativeAds: MutableList<UnifiedNativeAd> = ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_class_details, container, false)
@@ -68,9 +41,6 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        mInterstitialAd = InterstitialAd(activity)
-        mInterstitialAd!!.adUnitId = activity!!.resources.getString(R.string.interstitial_ad_id)
 
         answer_key_view.isSelected = true
         important_concepts_view.isSelected = false
@@ -81,11 +51,28 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         subjectStringFinal = arguments?.getString("studentSubject")
         classStringFinal = arguments?.getString("studentClass")
 
-        val dataObj = arrayOfNulls<String>(2)
-        dataObj[0] = classStringFinal
-        dataObj[1] = subjectStringFinal
-        val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
-        jsonTransmitter.execute(*dataObj)
+        if (getChapters(classStringFinal!!, subjectStringFinal!!)) {
+            //Log.e("")
+
+            adapter = ClassChaptersAdapter(context!!, mRecyclerViewItems)
+            recyclerView.adapter = adapter
+            val count = adapter!!.itemCount
+            text_total_answer_key.text = count.toString()
+            text_total_important_concepts.text = count.toString()
+            text_total_video.text = count.toString()
+            text_total_other.text = count.toString()
+            recyclerView.addOnItemTouchListener(
+                ClassChaptersAdapter.RecyclerTouchListener(context, this@ClassDetailsFragment)
+            )
+
+            Log.e("chaptersSize", mRecyclerViewItems.size.toString())
+        }else Log.e("No dude", "no")
+
+        //val dataObj = arrayOfNulls<String>(2)
+        //dataObj[0] = classStringFinal
+        //dataObj[1] = subjectStringFinal
+        //val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
+        //jsonTransmitter.execute(*dataObj)
 
         answer_key_view.setOnClickListener {
             answerKey()
@@ -104,7 +91,6 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         }
 
         //HelperMethods.initialize(this)
-
     }
 
     private fun answerKey() {
@@ -252,10 +238,78 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     companion object {
         private var subjectStringFinal: String? = null
         private var classStringFinal: String? = null
+        val mRecyclerViewItems: MutableList<Any> = ArrayList()
+
+        fun getChapters(studentclass:String, studentSubject:String) : Boolean {
+
+            Log.e("if", "yes")
+            //progress_bar.visibility = View.VISIBLE
+            //Create Retrofit
+            val retrofit = Retrofit.Builder().baseUrl("http://completecourse.in/api/").build()
+
+            //Create Service
+            val service = retrofit.create(APIService::class.java)
+
+            //Create HashMap with fields
+            val params:HashMap<String?, RequestBody?> = HashMap()
+            params["studentclass"] = (studentclass).toRequestBody("text/plain".toMediaTypeOrNull())
+            params["studentsubject"] = studentSubject.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            //val yourList:Collection<ChapterItem> = arrayListOf()
+            var result = false
+
+            CoroutineScope(Dispatchers.IO).launch {
+                    //Do the POST request and get the response
+                    val response = service.postClassAndSubjectCode(params)
+                    if (response.isSuccessful) {
+                        result = true
+                        val obj = JSONObject(response.body()?.string() ?: "{}")
+                        val jsonArray = obj.getJSONArray("data")//JSONArray(obj.getJSONArray("data"))
+                        for (i in 0 until jsonArray.length()) {
+                            val item = ChapterItem()
+                            val chapterObject = jsonArray.getJSONObject(i)
+                            item.chapterKaName = chapterObject.getString("ChapterKaName")
+                            item.chapterKaFlipURL = chapterObject.getString("ChapterKaFlipURL")
+                            item.conceptKaFlipURL = chapterObject.getString("ConceptKaFlipURL")
+                            item.chapterKaVideoID = chapterObject.getString("ChapterKaVideo")
+                            item.otherImportantQues = chapterObject.getString("otherimgques")
+                            item.chapterSerial = (i + 1).toString() + "."
+                            mRecyclerViewItems.add(item)
+                        }
+
+                        //val listType: Type = object : TypeToken<List<ChapterItem>>() {}.type
+                        //yourList =  Gson().fromJson(jsonArray.toString(), listType)
+                        //mRecyclerViewItems.addAll(yourList)
+                        Log.e("success", "Yo")
+                        Log.e("result", result.toString())
+                    }else{
+                        Log.e("RETROFIT_ERROR", response.code().toString())
+                    }
+
+                    withContext(Dispatchers.Main){
+                        //mRecyclerViewItems.addAll(yourList)
+                        /*
+                        progress_bar.visibility = View.GONE
+                        adapter = ClassChaptersAdapter(context!!, mRecyclerViewItems)
+                        recyclerView.adapter = adapter
+                        val count = adapter!!.itemCount
+                        text_total_answer_key.text = count.toString()
+                        text_total_important_concepts.text = count.toString()
+                        text_total_video.text = count.toString()
+                        text_total_other.text = count.toString()
+                        recyclerView.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(context, this@ClassDetailsFragment))
+
+                        checkIfAdsOn()
+
+                         */
+                    }
+            }
+            Log.e("resultyahan", result.toString())
+            return result
+        }
     }
 
     override fun onClick(position: Int) {
-        if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
         val intent = Intent(activity, PDFActivity::class.java)
         val intentVideo = Intent(activity, VideoActivity::class.java)
         if (adapter!!.getItemViewType(position) == 0) {
@@ -279,175 +333,5 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
                 }
             }
         }
-    }
-
-    internal class JSONTransmitter(context: ClassDetailsFragment) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<ClassDetailsFragment> = WeakReference(context)
-
-        override fun onPreExecute() {
-            val activity = activityWeakReference.get()
-            activity!!.progress_bar.visibility = View.VISIBLE
-            activity.clear()
-        }
-
-        override fun doInBackground(vararg params: String?): String? {
-            val activity = activityWeakReference.get()
-            val urlString: String = AppConfig.URL_CHAPTERS
-            val studentclass = params[0]
-            val studentsubject = params[1]
-            val url: URL
-            val stream: InputStream
-            var urlConnection: HttpURLConnection? = null
-            try {
-                url = URL(urlString)
-                urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection.requestMethod = "POST"
-                urlConnection.doOutput = true
-                var data: String = (URLEncoder.encode("studentclass", "UTF-8")
-                        + "=" + URLEncoder.encode(studentclass, "UTF-8"))
-                data += ("&" + URLEncoder.encode("studentsubject", "UTF-8") + "="
-                        + URLEncoder.encode(studentsubject, "UTF-8"))
-
-                urlConnection.connect()
-                val wr = OutputStreamWriter(urlConnection.outputStream)
-                wr.write(data)
-                wr.flush()
-                stream = urlConnection.inputStream
-                val reader = BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8), 8)
-                val resFromServer = reader.readLine()
-                Log.e("response", resFromServer.toString())
-                val status: String
-                val jsonResponse: JSONObject
-                try {
-                    jsonResponse = JSONObject(resFromServer)
-                    status = jsonResponse.getString("status")
-                    if ((status == "true")) {
-                        val jsonObject = JSONObject(resFromServer)
-                        val jsonArray = jsonObject.getJSONArray("data")
-                        for (i in 0 until jsonArray.length()) {
-                            val item = ChapterItem()
-                            val chapterObject = jsonArray.getJSONObject(i)
-                            item.chapterKaName = chapterObject.getString("ChapterKaName")
-                            item.chapterKaFlipURL = chapterObject.getString("ChapterKaFlipURL")
-                            item.conceptKaFlipURL = chapterObject.getString("ConceptKaFlipURL")
-                            item.chapterKaVideoID = chapterObject.getString("ChapterKaVideo")
-                            item.otherImportantQues = chapterObject.getString("otherimgques")
-                            item.chapterSerial = (i + 1).toString() + "."
-                            activity!!.mRecyclerViewItems.add(item)
-                        }
-                    } else {
-                        val msg = jsonResponse.getString("message")
-                        if (activity!!.activity != null) {
-                            activity.activity!!.runOnUiThread { Toast.makeText(activity.context, msg, Toast.LENGTH_SHORT).show() }
-                        }
-                    }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
-                return null //reader.readLine();
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                urlConnection?.disconnect()
-            }
-            try {
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-                Log.i("Result", "SLEEP ERROR")
-            }
-            return null
-        }
-
-        override fun onPostExecute(jsonObject: String?) {
-            val activity = activityWeakReference.get()
-            activity!!.progress_bar.visibility = View.GONE
-            activity.adapter = ClassChaptersAdapter((activity.activity)!!, (activity.mRecyclerViewItems))
-            activity.recyclerView.adapter = activity.adapter
-            val count = activity.adapter!!.itemCount
-            activity.text_total_answer_key.text = count.toString()
-            activity.text_total_important_concepts.text = count.toString()
-            activity.text_total_video.text = count.toString()
-            activity.text_total_other.text = count.toString()
-            activity.recyclerView!!.addOnItemTouchListener(ClassChaptersAdapter.RecyclerTouchListener(activity.context, activity))
-
-            activity.checkIfAdsOn()
-        }
-
-    }
-
-    private fun insertAdsInMenuItems(mNativeAds: MutableList<UnifiedNativeAd>, mRecyclerViewItems: MutableList<Any>) {
-        if (mNativeAds.size <= 0) {
-            return
-        }
-        val offset = mRecyclerViewItems.size / mNativeAds.size + 1
-        var index = 0
-        for (ad in mNativeAds) {
-            mRecyclerViewItems.add(index, ad)
-            index += offset
-            adapter!!.setItems(mRecyclerViewItems)
-            adapter!!.notifyDataSetChanged()
-        }
-    }
-
-    private fun loadNativeAds() {
-        if (context != null) {
-            val builder = AdLoader.Builder(context, getString(R.string.native_ad))
-            adLoader = builder.forUnifiedNativeAd { unifiedNativeAd ->
-                // A native ad loaded successfully, check if the ad loader has finished loading
-                // and if so, insert the ads into the list.
-                mNativeAds.add(unifiedNativeAd)
-                if (!adLoader!!.isLoading) {
-                    insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
-                    //adapter.notifyDataSetChanged();
-                }
-            }.withAdListener(
-                    object : AdListener() {
-                        override fun onAdFailedToLoad(errorCode: Int) {
-                            // A native ad failed to load, check if the ad loader has finished loading
-                            // and if so, insert the ads into the list.
-                            Log.e("MainActivity", "The previous native ad failed to load. Attempting to" + " load another.")
-                            if (!adLoader!!.isLoading) {
-                                insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
-                                //adapter.notifyDataSetChanged();
-                            }
-                        }
-
-                        override fun onAdClicked() {
-                            //super.onAdClicked();
-                            //Ad Clicked
-                            //Log.e("adclicked", "yes")
-                        }
-                    }).build()
-
-            //Number of Native Ads to load
-            val NUMBER_OF_ADS: Int = if (mRecyclerViewItems.size <= 9) 3 else {
-                mRecyclerViewItems.size / 5 + 1
-            }
-
-            // Load the Native ads.
-            adLoader!!.loadAds(AdRequest.Builder().build(), NUMBER_OF_ADS)
-            Log.e("numberOfAds", NUMBER_OF_ADS.toString())
-        }
-    }
-
-    private fun checkIfAdsOn() {
-        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.getBoolean("adsense") == true) {
-                    Log.e("this", "yes")
-                    loadNativeAds()
-                    adRequest = AdRequest.Builder().build()
-                    adView_banner_class_details!!.loadAd(adRequest)
-                    mInterstitialAd!!.loadAd(AdRequest.Builder().build())
-                    mInterstitialAd!!.adListener = object : AdListener() {
-                        override fun onAdClosed() {
-                            super.onAdClosed()
-                            //Load the next interstitial ad
-                            mInterstitialAd!!.loadAd(AdRequest.Builder().build())
-                        }
-                    }
-                }
-            }
     }
 }

@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -29,8 +28,6 @@ class ProfileFragments : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         if (context != null) prefManager = PrefManager(context!!)
 
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
         if (FirebaseAuth.getInstance().uid != null)
             getUserProfile(FirebaseAuth.getInstance().uid!!)
 

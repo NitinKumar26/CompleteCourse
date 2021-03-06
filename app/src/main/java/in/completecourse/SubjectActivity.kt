@@ -3,15 +3,34 @@ package `in`.completecourse
 import `in`.completecourse.adapter.CarouselPagerAdapter
 import `in`.completecourse.fragment.ClassDetailsFragment
 import `in`.completecourse.helper.HelperMethods
+import `in`.completecourse.model.Chapter
+import `in`.completecourse.utils.APIService
 import `in`.completecourse.utils.ListConfig
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.viewpager.widget.ViewPager
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_subject.*
 import kotlinx.android.synthetic.main.fragment_class_details.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.Retrofit
+import java.lang.reflect.Type
+
 
 class SubjectActivity : AppCompatActivity(), View.OnClickListener {
     var classString:String? = null
@@ -90,14 +109,51 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener {
                 image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
                 text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
+                /*
                 val dataObj = arrayOfNulls<String>(2)
                 dataObj[0] = classString
                 dataObj[1] = subjectString
                 val jsonTransmitter = ClassDetailsFragment.JSONTransmitter(classFragment)
                 jsonTransmitter.execute(*dataObj)
+                 */
+
+                getChapters(classString!!, subjectString!!)
             }
             override fun onPageScrollStateChanged(i: Int) {}
         })
+    }
+
+    private fun getChapters(studentclass:String, studentSubject:String){
+        progress_bar.visibility = View.VISIBLE
+        //Create Retrofit
+        val retrofit = Retrofit.Builder().baseUrl("http://completecourse.in/api/").build()
+
+        //Create Service
+        val service = retrofit.create(APIService::class.java)
+
+        //Create HashMap with fields
+        val params:HashMap<String?, RequestBody?> = HashMap()
+        params["studentclass"] = (studentclass).toRequestBody("text/plain".toMediaTypeOrNull())
+        params["studentsubject"] = studentSubject.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                //Do the POST request and get the response
+                val response = service.postClassAndSubjectCode(params)
+                val obj:JSONObject = JSONObject(response.body()?.string()?:"{}")
+                val jsonArray:JSONArray = JSONArray(obj.getJSONArray("data"))
+                val listType: Type = object : TypeToken<List<Chapter>>() {}.type
+                val yourList: List<Chapter> = Gson().fromJson(jsonArray.toString(), listType)
+                withContext(Dispatchers.Main){
+                    progress_bar.visibility = View.GONE
+                    if (response.isSuccessful){
+
+                    }else{
+                        Log.e("RETROFIT_ERROR", response.code().toString())
+                    }
+                }
+            }
+        }
     }
 
     override fun onClick(view: View) {

@@ -12,9 +12,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import com.bumptech.glide.Glide
-import com.google.android.gms.ads.formats.MediaView
-import com.google.android.gms.ads.formats.UnifiedNativeAd
-import com.google.android.gms.ads.formats.UnifiedNativeAdView
 
 /**
  * RecyclerView adapter class to render items
@@ -35,61 +32,19 @@ class NewArrivalAdapter(private val context: Context, private var booklist: List
         return booklist!!.size
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val recyclerViewItem: Any = booklist!![position]
-        return if (recyclerViewItem is UnifiedNativeAd) {
-            UNIFIED_NATIVE_AD_VIEW_TYPE
-        } else MENU_ITEM_VIEW_TYPE
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            UNIFIED_NATIVE_AD_VIEW_TYPE -> {
-                val unifiedNativeLayoutView: View = LayoutInflater.from(context).inflate(R.layout.ad_unified_row, parent, false)
-                UnifiedNativeAdViewHolder(unifiedNativeLayoutView)
-            }
-            MENU_ITEM_VIEW_TYPE -> {
-                val view: View = LayoutInflater.from(context).inflate(R.layout.new_arrival_item_row, parent, false)
-                MyViewHolder(view)
-            }
-            else -> {
-                val view: View = LayoutInflater.from(context).inflate(R.layout.new_arrival_item_row, parent, false)
-                MyViewHolder(view)
-            }
-        }
+        val view: View = LayoutInflater.from(context).inflate(R.layout.new_arrival_item_row, parent, false)
+        return MyViewHolder(view)
     }
 
-    @SuppressLint("CheckResult")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
-            UNIFIED_NATIVE_AD_VIEW_TYPE -> {
-                val nativeAd = booklist!![position] as UnifiedNativeAd
-                HelperMethods.populateAdView(nativeAd, (holder as UnifiedNativeAdViewHolder).adView)
+        val viewHolder: MyViewHolder = holder as MyViewHolder
+        val book: BookNewArrival = booklist!![position] as BookNewArrival
+        viewHolder.name.text = book.title
+        viewHolder.price.text = book.rate
+        viewHolder.code.text = book.code
 
-            }MENU_ITEM_VIEW_TYPE -> {
-                val viewHolder: MyViewHolder = holder as MyViewHolder
-                val book: BookNewArrival = booklist!![position] as BookNewArrival
-                viewHolder.name.text = book.title
-                viewHolder.price.text = book.rate
-                viewHolder.code.text = book.code
-                Glide.with(context)
-                        .asBitmap()
-                        .load(book.url)
-                        .placeholder(R.drawable.background_gradient)
-                        .into(viewHolder.thumbnail)
-            }else -> {
-                val viewHolder: MyViewHolder = holder as MyViewHolder
-                val book: BookNewArrival = booklist!![position] as BookNewArrival
-                viewHolder.name.text = book.title
-                viewHolder.price.text = book.rate
-                viewHolder.code.text = book.code
-                Glide.with(context)
-                        .asBitmap()
-                        .load(book.url)
-                        .placeholder(R.drawable.background_gradient)
-                        .into(viewHolder.thumbnail)
-            }
-        }
+        Glide.with(context).asBitmap().load(book.url).placeholder(R.drawable.background_gradient).into(viewHolder.thumbnail)
     }
 
     fun setItems(mBookList: List<Any>?) {
@@ -118,18 +73,6 @@ class NewArrivalAdapter(private val context: Context, private var booklist: List
         override fun onTouchEvent(recyclerView: RecyclerView, motionEvent: MotionEvent) {}
         override fun onRequestDisallowInterceptTouchEvent(b: Boolean) {}
 
-    }
-
-    class UnifiedNativeAdViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view) {
-        val adView: UnifiedNativeAdView = view.findViewById(R.id.unified_ad)
-
-        init {
-
-            adView.mediaView = view.findViewById(R.id.ad_media) as MediaView
-            adView.headlineView = view.findViewById(R.id.ad_headline)
-            adView.priceView = view.findViewById(R.id.ad_price)
-            adView.starRatingView = view.findViewById(R.id.ad_stars)
-        }
     }
 
 }

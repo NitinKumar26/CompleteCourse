@@ -198,17 +198,4 @@
 
     </LinearLayout>
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="2dp"
-        ads:adSize="BANNER"
-        android:visibility="visible"
-        tools:visibility="visible"
-        ads:adUnitId="@string/banner_ad_unit"/>
-
 </RelativeLayout>

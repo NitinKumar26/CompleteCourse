@@ -18,7 +18,7 @@ buildscript {
                 exclude group: 'com.google.guava', module: 'guava-jdk5'
             }
         }
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.30"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.31"
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.3.0'
     }
 }
@@ -28,9 +28,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-
         maven{ url "https://jitpack.io" }
-
     }
 }
 

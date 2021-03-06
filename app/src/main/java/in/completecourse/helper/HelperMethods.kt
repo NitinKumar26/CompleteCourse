@@ -18,10 +18,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-//import com.facebook.ads.AdSettings
-//import com.facebook.ads.AudienceNetworkAds
-import com.google.android.gms.ads.formats.UnifiedNativeAd
-import com.google.android.gms.ads.formats.UnifiedNativeAdView
 
 object HelperMethods {
 
@@ -64,56 +60,6 @@ object HelperMethods {
         val metrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(metrics)
         return metrics.widthPixels / 3 * 2
-    }
-
-    @JvmStatic
-    fun populateAdView(nativeAd: UnifiedNativeAd, adView: UnifiedNativeAdView) {
-        //Some assets are guaranteed to be in every UnifiedNativeAd
-        (adView.headlineView as TextView).text = nativeAd.headline
-        //((TextView) adView.getBodyView()).setText(nativeAd.getBody());
-        //(adView.callToActionView as Button).text = nativeAd.callToAction
-
-        //These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
-        //check before trying to display them
-        //val icon = nativeAd.icon
-        /*
-        if (icon == null) adView.iconView.visibility = View.INVISIBLE else {
-            (adView.iconView as ImageView).setImageDrawable(icon.drawable)
-            adView.iconView.visibility = View.VISIBLE
-        }
-
-         */
-
-        if (nativeAd.price == null) adView.priceView.visibility = View.INVISIBLE else {
-            adView.priceView.visibility = View.VISIBLE
-            (adView.priceView as TextView).text = nativeAd.price
-        }
-
-        /*
-        if (nativeAd.getStore() == null)
-            adView.getStoreView().setVisibility(View.INVISIBLE);
-        else{
-            adView.getStoreView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
-        }
-         */
-
-        if (nativeAd.starRating == null) adView.starRatingView.visibility = View.INVISIBLE else {
-            adView.starRatingView.visibility = View.VISIBLE
-            (adView.starRatingView as RatingBar).rating = nativeAd.starRating.toFloat()
-        }
-
-        /*
-        if (nativeAd.getAdvertiser() == null)
-            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
-        else{
-            adView.getAdvertiserView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
-        }
-         */
-
-        //Assign native ad object to the native view
-        adView.setNativeAd(nativeAd)
     }
 
     /**

@@ -1,23 +1,11 @@
 package `in`.completecourse
 
 import `in`.completecourse.helper.PrefManager
-import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ads.mediation.unity.UnityMediationAdapter
-import com.google.android.gms.ads.AdFormat
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.initialization.InitializationStatus
-import com.google.android.gms.ads.mediation.InitializationCompleteCallback
-import com.google.android.gms.ads.mediation.MediationConfiguration
 import com.google.firebase.firestore.FirebaseFirestore
-import com.unity3d.ads.metadata.MetaData
 import java.util.*
 
 class SplashActivity : AppCompatActivity() {
@@ -28,14 +16,8 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        checkIfAdsOn()
-    }
+        getVersionCode()
 
-    private fun isNetworkAvailable(): Boolean {
-        val activeNetworkInfo: NetworkInfo?
-        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        activeNetworkInfo = connectivityManager.activeNetworkInfo
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 
     private fun getVersionCode(){
@@ -105,58 +87,5 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun initializeMobileAds(){
-        //GDPR consent for Unity Personalized Ads
-        val metaData = MetaData(this)
-        metaData.set("gdpr.consent", true)
-        metaData.commit()
-
-        MobileAds.initialize(this@SplashActivity)
-
-        val unityInterstitial = Bundle()
-        unityInterstitial.putString("gameId", getString(R.string.unity_game_id))
-        unityInterstitial.putString("zoneId", getString(R.string.unity_interstitial_placement_id))
-
-        val unityBanner = Bundle()
-        unityBanner.putString("gameId", getString(R.string.unity_game_id))
-        unityBanner.putString("zoneId", getString(R.string.unity_banner))
-
-        val unityConfig: MutableList<MediationConfiguration> = ArrayList()
-        unityConfig.add(MediationConfiguration(AdFormat.INTERSTITIAL, unityInterstitial))
-        unityConfig.add(MediationConfiguration(AdFormat.BANNER, unityBanner))
-
-        val adapter = UnityMediationAdapter()
-        adapter.initialize(this, object : InitializationCompleteCallback {
-            override fun onInitializationSucceeded() {}
-            override fun onInitializationFailed(s: String) {
-
-                Log.e("unityInit", s)
-            }
-        }, unityConfig)
-
-        /*
-        if (BuildConfig.DEBUG) {
-            val testDeviceIds = listOf("808EBC3F3CDB7990C5E47717B824C7AC")
-            val configuration = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
-            MobileAds.setRequestConfiguration(configuration)
-        }
-        */
-    }
-
-    private fun checkIfAdsOn(){
-        if (isNetworkAvailable()){
-        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.getBoolean("adsense") == true) {
-                Log.e("this", "yes")
-                initializeMobileAds()
-                getVersionCode()
-            }else {
-                Log.e("this", "no")
-                getVersionCode()
-            }
-            }
-        }else Toast.makeText(this@SplashActivity, "Please Check your Internet Connection", Toast.LENGTH_LONG).show()
     }
 }

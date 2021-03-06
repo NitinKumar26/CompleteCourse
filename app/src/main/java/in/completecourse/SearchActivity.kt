@@ -8,25 +8,15 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity(), View.OnClickListener {
-    private var mInterstitialAd: InterstitialAd? = null
-    private var adRequest: AdRequest? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
         title = resources.getString(R.string.app_name)
-
-        mInterstitialAd = InterstitialAd(this)
-        mInterstitialAd?.adUnitId = getString(R.string.interstitial_ad_id)
-
-        checkIfAdsOn()
 
         //Find the required Views
         layout_physics.setOnClickListener(this)
@@ -80,7 +70,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         //Log.e("class", classString.toString())
         when (view.id) {
             R.id.layout_physics -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 2) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -95,7 +84,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_chemistry -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 2) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -110,7 +98,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_maths_11_12 -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 2) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -125,7 +113,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_biology -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString ==  2) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -140,7 +128,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.science_layout -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 0) {
                     intent.putExtra("classCode", ListConfig.classCode[0])
@@ -155,7 +143,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.science_english -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 0) {
                     intent.putExtra("classCode", ListConfig.classCode[0])
@@ -170,7 +158,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.mathematics_9_10_layout -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 0) {
                     intent.putExtra("classCode", ListConfig.classCode[0])
@@ -185,7 +173,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.math_layout_eng -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                ///if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 0) {
                     intent.putExtra("classCode", ListConfig.classCode[0])
@@ -200,7 +188,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_physicsEnglish -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 4) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -215,7 +203,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_chemistryEnglish -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 4) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -230,7 +218,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_maths_11_12English -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 4) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -245,7 +233,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.layout_biologyEnglish -> {
-                if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
+                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
                 intent = Intent(this@SearchActivity, SubjectActivity::class.java)
                 if (classString == 4) {
                     intent.putExtra("classCode", ListConfig.classCode[2])
@@ -258,15 +246,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                     intent.putExtra("spinPosition", classString.toString())
                     startActivity(intent)
                 }
-            }
-        }
-    }
-
-    private fun checkIfAdsOn(){
-        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.getBoolean("adsense") == true){
-                adRequest = AdRequest.Builder().build()
-                mInterstitialAd?.loadAd(adRequest)
             }
         }
     }

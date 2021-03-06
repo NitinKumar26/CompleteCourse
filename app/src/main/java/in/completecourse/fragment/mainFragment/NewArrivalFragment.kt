@@ -13,7 +13,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +21,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.formats.UnifiedNativeAd
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_new_arrival.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -35,14 +29,8 @@ import java.lang.ref.WeakReference
 class NewArrivalFragment : Fragment(){
     private var mAdapter: NewArrivalAdapter? = null
 
-    //The AdLoader used to load ads
-    private var adLoader: AdLoader? = null
-
     //List of quizItems and native ads that populate the RecyclerView;
     private val mRecyclerViewItems: MutableList<Any> = java.util.ArrayList()
-
-    //List of nativeAds that have been successfully loaded.
-    private val mNativeAds: MutableList<UnifiedNativeAd> = java.util.ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_new_arrival, container, false)
@@ -83,7 +71,8 @@ class NewArrivalFragment : Fragment(){
 
     private class GetLatestBooks(context: NewArrivalFragment) : AsyncTask<Void?, Void?, Void?>() {
         var bookNewArrival: BookNewArrival? = null
-        private val activityWeakReference: WeakReference<NewArrivalFragment> = WeakReference(context)
+        private val activityWeakReference: WeakReference<NewArrivalFragment> =
+            WeakReference(context)
 
         override fun doInBackground(vararg arg0: Void?): Void? {
             val newArrivalFragment = activityWeakReference.get()
@@ -107,7 +96,11 @@ class NewArrivalFragment : Fragment(){
                     e.printStackTrace()
                 }
             } else {
-                Toast.makeText(newArrivalFragment!!.activity, "Couldn't get data from server.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    newArrivalFragment!!.activity,
+                    "Couldn't get data from server.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             return null
         }
@@ -118,85 +111,24 @@ class NewArrivalFragment : Fragment(){
             newArrivalFragment!!.mAdapter!!.notifyDataSetChanged()
             newArrivalFragment.progressbar_fragment_store.visibility = View.INVISIBLE
 
-            newArrivalFragment.checkIfAdsOn()
-
-            newArrivalFragment.recycler_view_store.addOnItemTouchListener(HelperMethods.RecyclerTouchListener(newArrivalFragment.context, object : HelperMethods.ClickListener {
-                override fun onClick(position: Int) {
-                    if (newArrivalFragment.mAdapter!!.getItemViewType(position) == 0){
-                        val book:BookNewArrival = newArrivalFragment.mRecyclerViewItems[position] as BookNewArrival
-                        val url: String? = book.siteUrl
-                        val intent = Intent(newArrivalFragment.context, PDFActivity::class.java)
-                        intent.putExtra("url", url)
-                        newArrivalFragment.startActivity(intent)
-                    }
-                }
-            }))
-        }
-    }
-
-    private fun insertAdsInMenuItems(mNativeAds: MutableList<UnifiedNativeAd>, mRecyclerViewItems: MutableList<Any>) {
-        if (mNativeAds.size <= 0) {
-            return
-        }
-        val offset = 8  //mRecyclerViewItems.size / mNativeAds.size + 1
-        var index = 0
-        for (ad in mNativeAds) {
-            mRecyclerViewItems.add(index, ad)
-            index += offset
-            mAdapter!!.setItems(mRecyclerViewItems)
-            mAdapter!!.notifyDataSetChanged()
-        }
-    }
-
-    private fun loadNativeAds() {
-        if (context != null) {
-            val builder = AdLoader.Builder(context, getString(R.string.native_ad))
-            adLoader = builder.forUnifiedNativeAd { unifiedNativeAd ->
-                // A native ad loaded successfully, check if the ad loader has finished loading
-                // and if so, insert the ads into the list.
-                mNativeAds.add(unifiedNativeAd)
-                if (!adLoader!!.isLoading) {
-                    insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
-                    //adapter.notifyDataSetChanged();
-                }
-            }.withAdListener(
-                    object : AdListener() {
-                        override fun onAdFailedToLoad(errorCode: Int) {
-                            // A native ad failed to load, check if the ad loader has finished loading
-                            // and if so, insert the ads into the list.
-                            Log.e("MainActivity", "The previous native ad failed to load. Attempting to" + " load another.")
-                            if (!adLoader!!.isLoading) {
-                                insertAdsInMenuItems(mNativeAds, mRecyclerViewItems)
-                                //adapter.notifyDataSetChanged();
+            newArrivalFragment.recycler_view_store.addOnItemTouchListener(
+                HelperMethods.RecyclerTouchListener(
+                    newArrivalFragment.context,
+                    object : HelperMethods.ClickListener {
+                        override fun onClick(position: Int) {
+                            if (newArrivalFragment.mAdapter!!.getItemViewType(position) == 0) {
+                                val book: BookNewArrival =
+                                    newArrivalFragment.mRecyclerViewItems[position] as BookNewArrival
+                                val url: String? = book.siteUrl
+                                val intent =
+                                    Intent(newArrivalFragment.context, PDFActivity::class.java)
+                                intent.putExtra("url", url)
+                                newArrivalFragment.startActivity(intent)
                             }
                         }
-
-                        override fun onAdClicked() {
-                            //super.onAdClicked();
-                            //Ad Clicked
-                            //Log.e("adclicked", "yes")
-                        }
-                    }).build()
-
-            //Number of Native Ads to load
-            val NUMBER_OF_ADS: Int = if (mRecyclerViewItems.size <= 9) 3 else {
-                mRecyclerViewItems.size / 5 + 1
-            }
-
-            // Load the Native ads.
-            adLoader!!.loadAds(AdRequest.Builder().build(), NUMBER_OF_ADS)
-            Log.e("numberOfAds", NUMBER_OF_ADS.toString())
+                    })
+            )
         }
-    }
-
-    private fun checkIfAdsOn() {
-        FirebaseFirestore.getInstance().collection("flags").document("cc_ads").get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.getBoolean("adsense") == true) {
-                    Log.e("this", "yes")
-                    loadNativeAds()
-                }
-            }
     }
 
 }
