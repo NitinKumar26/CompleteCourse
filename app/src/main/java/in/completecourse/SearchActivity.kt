@@ -1,6 +1,8 @@
 package `in`.completecourse
 
 import `in`.completecourse.adapter.SpinAdapter
+import `in`.completecourse.databinding.ActivityMainBinding
+import `in`.completecourse.databinding.ActivitySearchBinding
 import `in`.completecourse.utils.ListConfig
 import android.content.Intent
 import android.os.Bundle
@@ -8,54 +10,57 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_search.*
 
 class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
+    private lateinit var binding: ActivitySearchBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         title = resources.getString(R.string.app_name)
 
         //Find the required Views
-        layout_physics.setOnClickListener(this)
-        layout_chemistry.setOnClickListener(this)
-        layout_maths_11_12.setOnClickListener(this)
-        layout_biology.setOnClickListener(this)
+        binding.layoutPhysics.setOnClickListener(this)
+        binding.layoutChemistry.setOnClickListener(this)
+        binding.layoutMaths1112.setOnClickListener(this)
+        binding.layoutBiology.setOnClickListener(this)
 
-        science_layout.setOnClickListener(this)
-        mathematics_9_10_layout.setOnClickListener(this)
-        science_english.setOnClickListener(this)
-        math_layout_eng.setOnClickListener(this)
+        binding.scienceLayout.setOnClickListener(this)
+        binding.mathematics910Layout.setOnClickListener(this)
+        binding.scienceEnglish.setOnClickListener(this)
+        binding.mathLayoutEng.setOnClickListener(this)
 
-        layout_physicsEnglish.setOnClickListener(this)
-        layout_chemistryEnglish.setOnClickListener(this)
-        layout_maths_11_12English.setOnClickListener(this)
-        layout_biologyEnglish.setOnClickListener(this)
+        binding.layoutPhysicsEnglish.setOnClickListener(this)
+        binding.layoutChemistryEnglish.setOnClickListener(this)
+        binding.layoutMaths1112English.setOnClickListener(this)
+        binding.layoutBiologyEnglish.setOnClickListener(this)
 
         val spinnerItemsArray:Array<String> = arrayOf("9", "10", "11", "12", "11", "12")
         val spinnerAdapter = SpinAdapter(this, R.layout.spinner_row, spinnerItemsArray)
 
-        classSelection.adapter = spinnerAdapter
+        binding.classSelection.adapter = spinnerAdapter
 
-        classSelection.onItemSelectedListener = object : OnItemSelectedListener {
+        binding.classSelection.onItemSelectedListener = object : OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 mClassString = spinnerItemsArray[position]
 
                 if (position == 0 || position == 1 ){
-                    nineTen.visibility = View.VISIBLE
-                    elevenTwelve.visibility = View.GONE
-                    elevenTwelveEnglish.visibility = View.GONE
+                    binding.nineTen.visibility = View.VISIBLE
+                    binding.elevenTwelve.visibility = View.GONE
+                    binding.elevenTwelveEnglish.visibility = View.GONE
                 }else if (position == 2 || position == 3){
-                    elevenTwelve.visibility = View.VISIBLE
-                    elevenTwelveEnglish.visibility = View.GONE
-                    nineTen.visibility = View.GONE
+                    binding.elevenTwelve.visibility = View.VISIBLE
+                    binding.elevenTwelveEnglish.visibility = View.GONE
+                    binding.nineTen.visibility = View.GONE
                 }else if (position == 4 || position == 5){
-                    elevenTwelveEnglish.visibility = View.VISIBLE
-                    nineTen.visibility = View.GONE
-                    elevenTwelve.visibility = View.GONE
+                    binding.elevenTwelveEnglish.visibility = View.VISIBLE
+                    binding.nineTen.visibility = View.GONE
+                    binding.elevenTwelve.visibility = View.GONE
                 }
             }
 
@@ -66,7 +71,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(view: View) {
         val intent: Intent
-        val classString = classSelection.selectedItemPosition
+        val classString = binding.classSelection.selectedItemPosition
         //Log.e("class", classString.toString())
         when (view.id) {
             R.id.layout_physics -> {

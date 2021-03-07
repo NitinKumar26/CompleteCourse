@@ -19,7 +19,7 @@ import in.completecourse.model.MoreAppsItem;
 
 public class MoreAppsAdapter extends RecyclerView.Adapter<MoreAppsAdapter.ViewHolder> {
     private ArrayList<MoreAppsItem>  moreAppsItems;
-    private Context mContext;
+    private final Context mContext;
 
     public MoreAppsAdapter(Context mContext, ArrayList<MoreAppsItem> moreAppsItems) {
         this.moreAppsItems = moreAppsItems;
@@ -49,8 +49,8 @@ public class MoreAppsAdapter extends RecyclerView.Adapter<MoreAppsAdapter.ViewHo
     }
 
      static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvAppName, tvAppDesc;
-        private ImageView imgAppIcon;
+        private final TextView tvAppName, tvAppDesc;
+        private final ImageView imgAppIcon;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgAppIcon = itemView.findViewById(R.id.img);

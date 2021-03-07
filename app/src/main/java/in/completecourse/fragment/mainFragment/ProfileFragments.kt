@@ -3,6 +3,7 @@ package `in`.completecourse.fragment.mainFragment
 import `in`.completecourse.EditProfileActivity
 import `in`.completecourse.R
 import `in`.completecourse.activity.MoreAppsActivity
+import `in`.completecourse.databinding.FragmentProfileBinding
 import `in`.completecourse.helper.PrefManager
 import android.content.Intent
 import android.os.Bundle
@@ -11,17 +12,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_profile.*
 
 class ProfileFragments : Fragment() {
     private var prefManager: PrefManager? = null
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view: View = inflater.inflate(R.layout.fragment_profile, container, false)
-        return view
+
+    private var _binding: FragmentProfileBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,10 +36,15 @@ class ProfileFragments : Fragment() {
         if (FirebaseAuth.getInstance().uid != null)
             getUserProfile(FirebaseAuth.getInstance().uid!!)
 
-        btn_logout.setOnClickListener { logoutUser() }
-        btn_edit_profile.setOnClickListener { editProfile() }
-        btn_share.setOnClickListener{ shareApp() }
-        btn_more_app.setOnClickListener{ moreApps() }
+        binding.btnLogout.setOnClickListener { logoutUser() }
+        binding.btnEditProfile.setOnClickListener { editProfile() }
+        binding.btnShare.setOnClickListener{ shareApp() }
+        binding.btnMoreApp.setOnClickListener{ moreApps() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 
@@ -63,16 +73,18 @@ class ProfileFragments : Fragment() {
     }
 
     private fun getUserProfile(userId: String) {
-        FirebaseFirestore.getInstance().collection("users").document(userId).get().addOnCompleteListener { task: Task<DocumentSnapshot?>? -> progressBar!!.visibility = View.GONE }.addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-            tv_userName.text = getString(R.string.username, documentSnapshot.getString("name"))
-            if (documentSnapshot.getString("email") == null) tv_email.text = getString(R.string.email, "Not Provided")
-            else tv_email.text = getString(R.string.email, documentSnapshot.getString("email"))
-            if (documentSnapshot.getString("class") == null) tv_class.text = getString(R.string.user_class, "Not Provided")
-            else tv_class.text = getString(R.string.user_class, documentSnapshot.getString("class"))
-            if (documentSnapshot.getString("school") == null) tv_school.text = getString(R.string.school, "Not Provided")
-            else tv_school.text = getString(R.string.school, documentSnapshot.getString("school"))
-            if (documentSnapshot.getString("phone") == null) tv_contact.text = getString(R.string.contact, "Not Provided")
-            else tv_contact.text = getString(R.string.contact, documentSnapshot.getString("phone"))
+        FirebaseFirestore.getInstance().collection("users").document(userId).get()
+            .addOnCompleteListener { binding.progressBar.visibility = View.GONE }
+            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
+            binding.tvUserName.text = getString(R.string.username, documentSnapshot.getString("name"))
+            if (documentSnapshot.getString("email") == null) binding.tvEmail.text = getString(R.string.email, "Not Provided")
+            else binding.tvEmail.text = getString(R.string.email, documentSnapshot.getString("email"))
+            if (documentSnapshot.getString("class") == null) binding.tvClass.text = getString(R.string.user_class, "Not Provided")
+            else binding.tvClass.text = getString(R.string.user_class, documentSnapshot.getString("class"))
+            if (documentSnapshot.getString("school") == null) binding.tvSchool.text = getString(R.string.school, "Not Provided")
+            else binding.tvSchool.text = getString(R.string.school, documentSnapshot.getString("school"))
+            if (documentSnapshot.getString("phone") == null) binding.tvContact.text = getString(R.string.contact, "Not Provided")
+            else binding.tvContact.text = getString(R.string.contact, documentSnapshot.getString("phone"))
         }.addOnFailureListener { e: Exception -> Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show() }
     }
 }

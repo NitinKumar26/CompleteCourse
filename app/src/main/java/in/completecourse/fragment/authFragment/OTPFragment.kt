@@ -1,6 +1,8 @@
 package `in`.completecourse.fragment.authFragment
 
 import `in`.completecourse.MainActivity
+import `in`.completecourse.databinding.FragmentEasyLoginBinding
+import `in`.completecourse.databinding.FragmentOtpVerifyBinding
 import `in`.completecourse.helper.PrefManager
 import android.content.Intent
 import android.os.Bundle
@@ -20,24 +22,25 @@ import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_otp_verify.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class OTPFragment : Fragment() {
-    private var mAuth: FirebaseAuth? = null
     private var verificationId: String? = null
     private var username: String? = null
-    private var db: FirebaseFirestore? = null
     private var number: String? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(`in`.completecourse.R.layout.fragment_otp_verify, container, false)
+    private var _binding: FragmentOtpVerifyBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentOtpVerifyBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        db = FirebaseFirestore.getInstance()
-        mAuth = FirebaseAuth.getInstance()
         val bundle = arguments
         if (bundle != null) {
             number = bundle.getString("phoneNumber")
@@ -45,14 +48,19 @@ class OTPFragment : Fragment() {
             sendVerificationCode("+91$number")
         }
 
-        otp_view.setOtpCompletionListener {
-            progress_bar.visibility = View.GONE
+        binding.otpView.setOtpCompletionListener {
+            binding.progressBar.visibility = View.GONE
             verifyCode(it)
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun sendVerificationCode(number: String) {
-        progress_bar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
         activity?.let {
             PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
@@ -73,8 +81,8 @@ class OTPFragment : Fragment() {
         override fun onVerificationCompleted(phoneAuthCredential: PhoneAuthCredential) {
             val code = phoneAuthCredential.smsCode
             if (code != null) {
-                progress_bar.visibility = View.GONE
-                otp_view.setText(code)
+                binding.progressBar.visibility = View.GONE
+                binding.otpView.setText(code)
                 verifyCode(code)
             }
         }
@@ -90,14 +98,14 @@ class OTPFragment : Fragment() {
     }
 
     private fun signInWithCredential(credential: PhoneAuthCredential) {
-        mAuth!!.signInWithCredential(credential)
-                .addOnCompleteListener { progress_bar.visibility = View.GONE }
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener { binding.progressBar.visibility = View.GONE }
                 .addOnSuccessListener { authResult: AuthResult ->
                     if (context != null) {
                         if (authResult.user != null) {
-                            progress_bar.visibility = View.VISIBLE
-                            db!!.collection("users").document(authResult.user!!.uid).get()
-                                    .addOnCompleteListener { progress_bar.visibility = View.GONE }
+                            binding.progressBar.visibility = View.VISIBLE
+                            FirebaseFirestore.getInstance().collection("users").document(authResult.user!!.uid).get()
+                                    .addOnCompleteListener { binding.progressBar.visibility = View.GONE }
                                     .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
                                         if (documentSnapshot.exists()) {
                                             //User details are already in the database
@@ -110,13 +118,13 @@ class OTPFragment : Fragment() {
                                                 startActivity(intent)
                                             }
                                         } else {
-                                            progress_bar.visibility = View.VISIBLE
+                                            binding.progressBar.visibility = View.VISIBLE
                                             val userDetails: MutableMap<String, String?> = HashMap()
                                             userDetails["name"] = username
                                             userDetails["phone"] = number
                                             if (authResult.user != null) userDetails["userid"] = authResult.user!!.uid
-                                            db!!.collection("users").document(authResult.user!!.uid).set(userDetails)
-                                                    .addOnCompleteListener { progress_bar.visibility = View.GONE }.addOnSuccessListener {
+                                            FirebaseFirestore.getInstance().collection("users").document(authResult.user!!.uid).set(userDetails)
+                                                    .addOnCompleteListener { binding.progressBar.visibility = View.GONE }.addOnSuccessListener {
                                                         if (context != null) {
                                                             val prefManager = PrefManager(context!!)
                                                             prefManager.setFirstTimeLaunch(false)

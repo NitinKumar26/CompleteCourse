@@ -5,6 +5,8 @@ import `in`.completecourse.PDFActivity
 import `in`.completecourse.R
 import `in`.completecourse.VideoActivity
 import `in`.completecourse.adapter.ClassChaptersAdapter
+import `in`.completecourse.databinding.FragmentClassDetailsBinding
+import `in`.completecourse.databinding.FragmentProfileBinding
 import `in`.completecourse.model.ChapterItem
 import `in`.completecourse.utils.APIService
 import android.content.Intent
@@ -18,7 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_class_details.*
+//import kotlinx.android.synthetic.main.fragment_class_details.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,18 +37,29 @@ import kotlin.collections.HashMap
 class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     private var adapter: ClassChaptersAdapter? = null
 
+    private var _binding: FragmentClassDetailsBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_class_details, container, false)
+        _binding = FragmentClassDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        answer_key_view.isSelected = true
-        important_concepts_view.isSelected = false
-        video_view.isSelected = false
+        binding.answerKeyView.isSelected = true
+        binding.importantConceptsView.isSelected = false
+        binding.videoView.isSelected = false
 
-        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        binding.recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
         subjectStringFinal = arguments?.getString("studentSubject")
         classStringFinal = arguments?.getString("studentClass")
@@ -55,18 +68,19 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
             //Log.e("")
 
             adapter = ClassChaptersAdapter(context!!, mRecyclerViewItems)
-            recyclerView.adapter = adapter
+            binding.recyclerView.adapter = adapter
             val count = adapter!!.itemCount
-            text_total_answer_key.text = count.toString()
-            text_total_important_concepts.text = count.toString()
-            text_total_video.text = count.toString()
-            text_total_other.text = count.toString()
-            recyclerView.addOnItemTouchListener(
+            binding.textTotalAnswerKey.text = count.toString()
+            binding.textTotalImportantConcepts.text = count.toString()
+            binding.textTotalVideo.text = count.toString()
+            binding.textTotalOther.text = count.toString()
+            binding.recyclerView.addOnItemTouchListener(
                 ClassChaptersAdapter.RecyclerTouchListener(context, this@ClassDetailsFragment)
             )
 
             Log.e("chaptersSize", mRecyclerViewItems.size.toString())
-        }else Log.e("No dude", "no")
+        }
+        else Log.e("No dude", "no")
 
         //val dataObj = arrayOfNulls<String>(2)
         //dataObj[0] = classStringFinal
@@ -74,19 +88,19 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         //val jsonTransmitter = JSONTransmitter(this@ClassDetailsFragment)
         //jsonTransmitter.execute(*dataObj)
 
-        answer_key_view.setOnClickListener {
+        binding.answerKeyView.setOnClickListener {
             answerKey()
         }
 
-        important_concepts_view.setOnClickListener {
+        binding.importantConceptsView.setOnClickListener {
             importantConcepts()
         }
 
-        video_view.setOnClickListener {
+        binding.videoView.setOnClickListener {
             video()
         }
 
-        other_view.setOnClickListener {
+        binding.otherView.setOnClickListener {
             otherView()
         }
 
@@ -94,137 +108,137 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
     }
 
     private fun answerKey() {
-        answer_key_view.isSelected = true
-        important_concepts_view.isSelected = false
-        video_view.isSelected = false
-        other_view.isSelected = false
+        binding.answerKeyView.isSelected = true
+        binding.importantConceptsView.isSelected = false
+        binding.videoView.isSelected = false
+        binding.otherView.isSelected = false
         if (context != null) {
             //NCERT Answer Key View
-            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
-            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key, null))
-            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
-            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.answerKeyView.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            binding.imageAnswerKey.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key, null))
+            binding.textAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.textTotalAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
-            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.importantConceptsView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalImportantConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageImportantConcepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            binding.textImpConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Video View
-            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
-            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.videoView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.imageVideo.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            binding.textVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.textTotalVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Other Important Questions View
-            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
-            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.otherView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageOther.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            binding.textOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyay TextView
-        tv_adhyay_ka_naam.visibility = View.VISIBLE
+        binding.tvAdhyayKaNaam.visibility = View.VISIBLE
     }
 
     private fun importantConcepts() {
-        important_concepts_view.isSelected = true
-        answer_key_view.isSelected = false
-        video_view.isSelected = false
-        other_view.isSelected = false
+        binding.importantConceptsView.isSelected = true
+        binding.answerKeyView.isSelected = false
+        binding.videoView.isSelected = false
+        binding.otherView.isSelected = false
         if (context != null) {
             //Important Concepts View
-            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
-            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept, null))
-            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
-            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.importantConceptsView.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            binding.imageImportantConcepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept, null))
+            binding.textImpConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.textTotalImportantConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //NCERT Answer Key View
-            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
-            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.answerKeyView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageAnswerKey.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            binding.textAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Video View
-            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
-            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.videoView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.imageVideo.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            binding.textVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.textTotalVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
 
             //Other Important Questions View
-            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
-            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.otherView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageOther.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            binding.textOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.textAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
-        tv_adhyay_ka_naam.visibility = View.VISIBLE
+        binding.tvAdhyayKaNaam.visibility = View.VISIBLE
     }
 
     private fun video() {
-        video_view.isSelected = true
-        answer_key_view.isSelected = false
-        important_concepts_view.isSelected = false
-        other_view.isSelected = false
+        binding.videoView.isSelected = true
+        binding.answerKeyView.isSelected = false
+        binding.importantConceptsView.isSelected = false
+        binding.otherView.isSelected = false
         if (context != null) {
             //Video View
-            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
-            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player, null))
-            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
-            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.videoView.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            binding.imageVideo.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player, null))
+            binding.textVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.textTotalVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
-            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.importantConceptsView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalImportantConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageImportantConcepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            binding.textImpConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Answer Key View
-            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
-            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.answerKeyView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageAnswerKey.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            binding.textAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Other Important Questions View
-            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
-            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.otherView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageOther.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question_default, null))
+            binding.textOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyay Ka Naam TextView
-        tv_adhyay_ka_naam.visibility = View.VISIBLE
+        binding.tvAdhyayKaNaam.visibility = View.VISIBLE
     }
 
     private fun otherView() {
-        other_view.isSelected = true
-        answer_key_view.isSelected = false
-        important_concepts_view.isSelected = false
-        video_view.isSelected = false
+        binding.otherView.isSelected = true
+        binding.answerKeyView.isSelected = false
+        binding.importantConceptsView.isSelected = false
+        binding.videoView.isSelected = false
         if (context != null) {
             //Important Question View
-            other_view.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
-            image_other.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question, null))
-            text_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
-            text_total_other.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.otherView.background = ResourcesCompat.getDrawable(resources, R.drawable.video_selected, null)
+            binding.imageOther.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_imp_question, null))
+            binding.textOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
+            binding.textTotalOther.setTextColor(ResourcesCompat.getColor(resources, R.color.colorWhite, null))
 
             //Important Concepts View
-            important_concepts_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_important_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_important_concepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
-            text_imp_concepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.importantConceptsView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalImportantConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageImportantConcepts.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_concept_default, null))
+            binding.textImpConcepts.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
             //Answer Key View
-            answer_key_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            text_total_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            image_answer_key.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
-            text_answer_key.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            video_view.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
-            image_video.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
-            text_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
-            text_total_video.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.answerKeyView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.textTotalAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.imageAnswerKey.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_answer_key_default, null))
+            binding.textAnswerKey.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.videoView.background = ResourcesCompat.getDrawable(resources, R.drawable.not_selected, null)
+            binding.imageVideo.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_video_player_default, null))
+            binding.textVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
+            binding.textTotalVideo.setTextColor(ResourcesCompat.getColor(resources, R.color.colorBlack, null))
         }
 
         //Adhyaya Ka Naam TextView
-        tv_adhyay_ka_naam.visibility = View.VISIBLE
+        binding.tvAdhyayKaNaam.visibility = View.VISIBLE
     }
 
     private fun clear() {
@@ -315,19 +329,19 @@ class ClassDetailsFragment : Fragment(), ClassChaptersAdapter.ClickListener {
         if (adapter!!.getItemViewType(position) == 0) {
             val chapterItem: ChapterItem = mRecyclerViewItems[position] as ChapterItem
             when {
-                answer_key_view.isSelected -> {
+                binding.answerKeyView.isSelected -> {
                     intent.putExtra("url", chapterItem.chapterKaFlipURL)
                     activity?.startActivity(intent)
                 }
-                important_concepts_view.isSelected -> {
+                binding.importantConceptsView.isSelected -> {
                     intent.putExtra("url", chapterItem.conceptKaFlipURL)
                     activity?.startActivity(intent)
                 }
-                video_view.isSelected -> {
+                binding.videoView.isSelected -> {
                     intentVideo.putExtra("videoID", chapterItem.chapterKaVideoID)
                     activity?.startActivity(intentVideo)
                 }
-                other_view.isSelected -> {
+                binding.otherView.isSelected -> {
                     intent.putExtra("url", chapterItem.otherImportantQues)
                     activity?.startActivity(intent)
                 }

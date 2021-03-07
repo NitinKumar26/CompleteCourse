@@ -4,6 +4,7 @@ import `in`.completecourse.*
 import `in`.completecourse.adapter.ImageAdapter
 import `in`.completecourse.adapter.SliderAdapter
 import `in`.completecourse.app.AppConfig
+import `in`.completecourse.databinding.FragmentHomeBinding
 import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.model.CardModel
 import `in`.completecourse.model.Update
@@ -18,8 +19,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-//import com.google.android.ads.mediationtestsuite.MediationTestSuite
-import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -35,6 +34,11 @@ import java.util.*
 class HomeFragment : Fragment(), ImageAdapter.ClickListener {
     private var updateList: ArrayList<Update>? = null
     private var sliderAdapter: SliderAdapter? = null
+
+    private var _binding: FragmentHomeBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -128,8 +132,14 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -138,15 +148,15 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
         cardList.add(CardModel(R.drawable.manual_search, "Manual Search"))
         cardList.add(CardModel(R.drawable.scan_qr, "Scan QR Code"))
 
-        recycler_view.setHasFixedSize(true)
+        binding.recyclerView.setHasFixedSize(true)
         //use a linear layout manager
         val gridLayoutManager = GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
-        recycler_view.layoutManager = gridLayoutManager
+        binding.recyclerView.layoutManager = gridLayoutManager
 
         //specify an adapter
         val recyclerViewAdapter = ImageAdapter(cardList, context!!)
-        recycler_view.adapter = recyclerViewAdapter
-        recycler_view.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, this))
+        binding.recyclerView.adapter = recyclerViewAdapter
+        binding.recyclerView.addOnItemTouchListener(ImageAdapter.RecyclerTouchListener(context, this))
 
         val timer = Timer()
         timer.scheduleAtFixedRate(SliderTimer(), 4000, 6000)
@@ -159,17 +169,16 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
         }
 
         //if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
-
     }
 
     private inner class SliderTimer : TimerTask() {
         override fun run() {
             if (activity != null) {
                 activity!!.runOnUiThread {
-                    if (viewPager.currentItem < updateList!!.size - 1) {
-                        viewPager.currentItem = viewPager.currentItem + 1
+                    if (binding.viewPager.currentItem < updateList?.size?.minus(1) ?: 0) {
+                        binding.viewPager.currentItem = binding.viewPager.currentItem + 1
                     } else {
-                        viewPager.currentItem = 0
+                        binding.viewPager.currentItem = 0
                     }
                 }
             }
@@ -218,8 +227,8 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
                             activity.sliderAdapter = SliderAdapter(activity.activity, activity.updateList!!)
                             activity.sliderAdapter!!.setItems(activity.updateList)
                             activity.activity!!.runOnUiThread {
-                                activity.indicator.setupWithViewPager(activity.viewPager, true)
-                                activity.viewPager.adapter = activity.sliderAdapter
+                                activity.binding.indicator.setupWithViewPager(activity.binding.viewPager, true)
+                                activity.binding.viewPager.adapter = activity.sliderAdapter
                                 //activity.sliderAdapter!!.notifyDataSetChanged()
                             }
                         }

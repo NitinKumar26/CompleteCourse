@@ -2,6 +2,7 @@ package `in`.completecourse.adapter
 
 import `in`.completecourse.R
 import `in`.completecourse.SubjectActivity
+import `in`.completecourse.databinding.ActivitySubjectBinding
 import `in`.completecourse.fragment.ItemFragment
 import `in`.completecourse.utils.CarouselLinearLayout
 import `in`.completecourse.utils.ListConfig
@@ -10,14 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import kotlinx.android.synthetic.main.activity_subject.*
 
-class CarouselPagerAdapter(private val context: SubjectActivity,
-                           private val fragmentManager: FragmentManager,
-                           private val classString:String?,
-                           private val subjectString:String? ) : FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
+class CarouselPagerAdapter(private val context: SubjectActivity, private val fragmentManager: FragmentManager, private val classString:String?, private val subjectString:String? ) :
+    FragmentPagerAdapter(fragmentManager), OnPageChangeListener {
     private var scale = 0f
-
+    private val binding: ActivitySubjectBinding = ActivitySubjectBinding.inflate(context.layoutInflater)
     override fun getItem(position: Int): Fragment {
         // make the first pager bigger than others
         var position = position
@@ -65,7 +63,7 @@ class CarouselPagerAdapter(private val context: SubjectActivity,
     }
 
     private fun getFragmentTag(position: Int): String {
-        return "android:switcher:" + context.viewpagerr.id + ":" + position
+        return "android:switcher:" + binding.viewpagerr.id + ":" + position
     }
 
     companion object {

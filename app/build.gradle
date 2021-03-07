@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 //Performance Monitoring plugin
@@ -18,7 +17,6 @@ android {
         versionCode 39
         versionName "2.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath true
         android.defaultConfig.vectorDrawables.useSupportLibrary true
         multiDexEnabled true
     }
@@ -43,6 +41,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 

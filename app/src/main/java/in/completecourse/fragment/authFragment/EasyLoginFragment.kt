@@ -2,6 +2,7 @@ package `in`.completecourse.fragment.authFragment
 
 import `in`.completecourse.MainActivity
 import `in`.completecourse.R
+import `in`.completecourse.databinding.FragmentEasyLoginBinding
 import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.helper.PrefManager
 import android.app.ProgressDialog
@@ -18,47 +19,48 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_easy_login.*
 import java.util.*
 
 class EasyLoginFragment : Fragment() {
 
-    private var mAuth: FirebaseAuth? = null
     private var mGoogleSignInClient: GoogleSignInClient? = null
     private var pDialog: ProgressDialog? = null
-    private var db: FirebaseFirestore? = null
     private var username: String? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_easy_login, container, false)
+    private var _binding: FragmentEasyLoginBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentEasyLoginBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mAuth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+
         pDialog = ProgressDialog(context)
         pDialog!!.setMessage("Please wait...")
 
-        send_verification_code_button.setOnClickListener {
+        binding.sendVerificationCodeButton.setOnClickListener {
             sendVerificationCode()
         }
 
-        sign_with_google.setOnClickListener {
+        binding.signWithGoogle.setOnClickListener {
             signInWithGoogle()
         }
 
     }
 
     private fun sendVerificationCode() {
-        val usernameString = edTv_username_login.text.toString().trim { it <= ' ' }
-        val mobileNumberString = edTv_mobile_number_login.text.toString().trim { it <= ' ' }
+        val usernameString = binding.edTvUsernameLogin.text.toString().trim { it <= ' ' }
+        val mobileNumberString = binding.edTvMobileNumberLogin.text.toString().trim { it <= ' ' }
         if (HelperMethods.isNetworkAvailable(activity)) {
             if (usernameString.isNotEmpty() && mobileNumberString.isNotEmpty()) {
                 val bundle = Bundle()
@@ -109,6 +111,11 @@ class EasyLoginFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun signIn() {
         val signInIntent = mGoogleSignInClient!!.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
@@ -117,13 +124,13 @@ class EasyLoginFragment : Fragment() {
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         if (activity != null) {
-            mAuth!!.signInWithCredential(credential)
+            FirebaseAuth.getInstance().signInWithCredential(credential)
                     .addOnCompleteListener { pDialog!!.hide() }
                     .addOnSuccessListener { authResult: AuthResult ->
                         if (context != null) {
                             if (authResult.user != null) {
                                 pDialog!!.show()
-                                db!!.collection("users").document(authResult.user!!.uid).get()
+                                FirebaseFirestore.getInstance().collection("users").document(authResult.user!!.uid).get()
                                         .addOnCompleteListener { pDialog!!.dismiss() }
                                         .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
                                             if (documentSnapshot.exists()) {
@@ -142,11 +149,11 @@ class EasyLoginFragment : Fragment() {
                                                 //User details not available in database save them
                                                 val userDetails: MutableMap<String, String?> = HashMap()
                                                 userDetails["name"] = username
-                                                if (mAuth!!.currentUser != null) {
-                                                    userDetails["email"] = mAuth!!.currentUser!!.email
+                                                if (FirebaseAuth.getInstance().currentUser != null) {
+                                                    userDetails["email"] = FirebaseAuth.getInstance().currentUser!!.email
                                                     userDetails["userid"] = authResult.user!!.uid
-                                                    db!!.collection("users").document(authResult.user!!.uid).set(userDetails)
-                                                            .addOnCompleteListener { task: Task<Void?>? -> pDialog!!.dismiss() }.addOnSuccessListener { aVoid: Void? ->
+                                                    FirebaseFirestore.getInstance().collection("users").document(authResult.user!!.uid).set(userDetails)
+                                                            .addOnCompleteListener { pDialog!!.dismiss() }.addOnSuccessListener { aVoid: Void? ->
                                                                 if (context != null) {
                                                                     val prefManager = PrefManager(context!!)
                                                                     prefManager.setFirstTimeLaunch(false)

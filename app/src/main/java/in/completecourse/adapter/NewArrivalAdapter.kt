@@ -18,8 +18,6 @@ import com.bumptech.glide.Glide
  * This class can go into another separate class, but for simplicity
  */
 class NewArrivalAdapter(private val context: Context, private var booklist: List<Any>?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var MENU_ITEM_VIEW_TYPE = 0
-    private var UNIFIED_NATIVE_AD_VIEW_TYPE = 1
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.title)

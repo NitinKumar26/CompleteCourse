@@ -2,6 +2,7 @@ package `in`.completecourse
 
 import `in`.completecourse.adapter.CompetitionUpdatesAdapter
 import `in`.completecourse.app.AppConfig
+import `in`.completecourse.databinding.ActivityDialogBinding
 import `in`.completecourse.model.UpdateItem
 import android.os.AsyncTask
 import android.os.Bundle
@@ -10,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_dialog.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
@@ -25,10 +25,14 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
     private var updatesList: ArrayList<UpdateItem>? = null
     private var adapter: CompetitionUpdatesAdapter? = null
 
+    private lateinit var binding: ActivityDialogBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dialog)
-        recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        binding = ActivityDialogBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val classStringFinal = intent.getStringExtra("class")
         val dataObj = arrayOfNulls<String>(1)
         dataObj[0] = classStringFinal
@@ -42,10 +46,6 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
 
         override fun onPreExecute() {
             val activity = activityWeakReference.get()
-            //activity!!.pDialog = ProgressDialog(activity)
-            //activity.pDialog!!.setMessage("Please wait...")
-            //activity.pDialog!!.setCancelable(false)
-            //activity.pDialog!!.show()
         }
 
         override fun doInBackground(vararg params: String?): String? {
@@ -118,7 +118,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
             }
              */
             activity?.adapter = CompetitionUpdatesAdapter(activity!!, activity.updatesList)
-            activity.recyclerView!!.adapter = activity.adapter
+            activity.binding.recyclerView.adapter = activity.adapter
         }
 
     }

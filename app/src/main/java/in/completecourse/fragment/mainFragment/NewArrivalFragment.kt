@@ -1,9 +1,9 @@
 package `in`.completecourse.fragment.mainFragment
 
 import `in`.completecourse.PDFActivity
-import `in`.completecourse.R
 import `in`.completecourse.adapter.NewArrivalAdapter
 import `in`.completecourse.app.AppConfig
+import `in`.completecourse.databinding.FragmentNewArrivalBinding
 import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.helper.HttpHandler
 import `in`.completecourse.model.BookNewArrival
@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.fragment_new_arrival.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
@@ -31,9 +30,19 @@ class NewArrivalFragment : Fragment(){
 
     //List of quizItems and native ads that populate the RecyclerView;
     private val mRecyclerViewItems: MutableList<Any> = java.util.ArrayList()
+    private var _binding: FragmentNewArrivalBinding? = null
+    //This property is only valid between onCreateView and
+    //onDestroyView
+    private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_new_arrival, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentNewArrivalBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,10 +51,10 @@ class NewArrivalFragment : Fragment(){
         mAdapter = NewArrivalAdapter(view.context, mRecyclerViewItems)
 
         val mLayoutManager: RecyclerView.LayoutManager = GridLayoutManager(context, 3)
-        recycler_view_store.layoutManager = mLayoutManager
-        recycler_view_store.itemAnimator = DefaultItemAnimator()
-        recycler_view_store.adapter = mAdapter
-        recycler_view_store.isNestedScrollingEnabled = false
+        binding.recyclerViewStore.layoutManager = mLayoutManager
+        binding.recyclerViewStore.itemAnimator = DefaultItemAnimator()
+        binding.recyclerViewStore.adapter = mAdapter
+        binding.recyclerViewStore.isNestedScrollingEnabled = false
 
         if (isNetworkAvailable) {
             GetLatestBooks(this@NewArrivalFragment).execute()
@@ -71,8 +80,7 @@ class NewArrivalFragment : Fragment(){
 
     private class GetLatestBooks(context: NewArrivalFragment) : AsyncTask<Void?, Void?, Void?>() {
         var bookNewArrival: BookNewArrival? = null
-        private val activityWeakReference: WeakReference<NewArrivalFragment> =
-            WeakReference(context)
+        private val activityWeakReference: WeakReference<NewArrivalFragment> = WeakReference(context)
 
         override fun doInBackground(vararg arg0: Void?): Void? {
             val newArrivalFragment = activityWeakReference.get()
@@ -109,9 +117,9 @@ class NewArrivalFragment : Fragment(){
             super.onPostExecute(result)
             val newArrivalFragment = activityWeakReference.get()
             newArrivalFragment!!.mAdapter!!.notifyDataSetChanged()
-            newArrivalFragment.progressbar_fragment_store.visibility = View.INVISIBLE
+            newArrivalFragment.binding.progressbarFragmentStore.visibility = View.INVISIBLE
 
-            newArrivalFragment.recycler_view_store.addOnItemTouchListener(
+            newArrivalFragment.binding.recyclerViewStore.addOnItemTouchListener(
                 HelperMethods.RecyclerTouchListener(
                     newArrivalFragment.context,
                     object : HelperMethods.ClickListener {

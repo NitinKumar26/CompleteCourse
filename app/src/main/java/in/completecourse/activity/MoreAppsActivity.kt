@@ -1,7 +1,7 @@
 package `in`.completecourse.activity
 
-import `in`.completecourse.R
 import `in`.completecourse.adapter.MoreAppsAdapter
+import `in`.completecourse.databinding.ActivityMoreAppsBinding
 import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.model.MoreAppsItem
 import android.content.Intent
@@ -15,22 +15,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import kotlinx.android.synthetic.main.activity_more_apps.*
 import java.util.*
 
 class MoreAppsActivity : AppCompatActivity() {
     private var moreAppsItems: ArrayList<MoreAppsItem>? = null
     var adapter: MoreAppsAdapter? = null
+    private lateinit var binding: ActivityMoreAppsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_more_apps)
+        binding = ActivityMoreAppsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         moreAppsItems = ArrayList<MoreAppsItem>()
         adapter = MoreAppsAdapter(this, moreAppsItems)
-        recycler_view.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        recycler_view.addItemDecoration(DividerItemDecoration(this, RecyclerView.VERTICAL))
-        recycler_view.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(this, RecyclerView.VERTICAL))
+        binding.recyclerView.adapter = adapter
         moreApps
-        recycler_view.addOnItemTouchListener(HelperMethods.RecyclerTouchListener(this, object : HelperMethods.ClickListener {
+        binding.recyclerView.addOnItemTouchListener(HelperMethods.RecyclerTouchListener(this, object : HelperMethods.ClickListener {
             override fun onClick(position: Int) {
                 val intent = Intent("android.intent.action.VIEW", Uri.parse(moreAppsItems!![position].app_play_url))
                 startActivity(intent)
@@ -39,7 +42,10 @@ class MoreAppsActivity : AppCompatActivity() {
     }
 
     private val moreApps: Unit get() {
-            FirebaseFirestore.getInstance().collection("more_apps_cc").get().addOnCompleteListener { progressBar!!.visibility = View.GONE }.addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot ->
+            FirebaseFirestore.getInstance()
+                .collection("more_apps_cc").get()
+                .addOnCompleteListener { binding.progressBar.visibility = View.GONE }
+                .addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot ->
                         val items: List<MoreAppsItem> = queryDocumentSnapshots.toObjects(MoreAppsItem::class.java)
                         moreAppsItems!!.addAll(items)
                         adapter?.setItems(moreAppsItems)
