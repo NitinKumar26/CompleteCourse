@@ -1,17 +1,18 @@
 package `in`.completecourse.fragment.mainFragment
 
-import `in`.completecourse.*
+import `in`.completecourse.R
+import `in`.completecourse.ScanActivity
+import `in`.completecourse.SearchActivity
+import `in`.completecourse.SubjectActivity
 import `in`.completecourse.adapter.ImageAdapter
 import `in`.completecourse.adapter.SliderAdapter
-import `in`.completecourse.app.AppConfig
 import `in`.completecourse.databinding.FragmentHomeBinding
 import `in`.completecourse.helper.HelperMethods
 import `in`.completecourse.model.CardModel
 import `in`.completecourse.model.Update
+import `in`.completecourse.utils.APIService
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,16 +20,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import org.json.JSONException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
+import retrofit2.Retrofit
 import java.util.*
 
 class HomeFragment : Fragment(), ImageAdapter.ClickListener {
@@ -160,15 +157,8 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
 
         val timer = Timer()
         timer.scheduleAtFixedRate(SliderTimer(), 4000, 6000)
-        if (HelperMethods.isNetworkAvailable(activity)) {
-            val jsonTransmitter = JSONTransmitter(this@HomeFragment)
-            jsonTransmitter.execute()
-        }
-        else {
-            Toast.makeText(view.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
-        }
-
-        //if (BuildConfig.DEBUG) MediationTestSuite.launch(context)
+        if (HelperMethods.isNetworkAvailable(activity)) getUpdates()
+        else Toast.makeText(view.context, "Please check your internet connection.", Toast.LENGTH_SHORT).show()
     }
 
     private inner class SliderTimer : TimerTask() {
@@ -185,78 +175,37 @@ class HomeFragment : Fragment(), ImageAdapter.ClickListener {
         }
     }
 
-    internal class JSONTransmitter(context: HomeFragment) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<HomeFragment> = WeakReference(context)
+    private fun getUpdates() {
+        //binding.progressBar.visibility = View.VISIBLE
+        //Create Retrofit
+        val retrofit = Retrofit.Builder().baseUrl("http://completecourse.in/api/").build()
 
-        override fun onPreExecute() {
-            val activity = activityWeakReference.get()
-        }
+        //Create Service
+        val service = retrofit.create(APIService::class.java)
 
-        override fun doInBackground(vararg params: String?): String? {
-            val activity = activityWeakReference.get()
-            val urlString: String = AppConfig.URL_UPDATES
-            val url: URL
-            val stream: InputStream
-            var urlConnection: HttpURLConnection? = null
-            try {
-                url = URL(urlString)
-                urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection.requestMethod = "GET"
-                urlConnection.doOutput = true
-                urlConnection.connect()
-                stream = urlConnection.inputStream
-                val reader = BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8), 8)
-                val resFromServer = reader.readLine()
-                val status: String
-                val jsonResponse: JSONObject
-                try {
-                    jsonResponse = JSONObject(resFromServer)
-                    //Log.e("chatpterItem", String.valueOf(jsonResponse));
-                    status = jsonResponse.getString("status")
-                    if (status == "true") {
-                        val jsonObject = JSONObject(resFromServer)
-                        val jsonArray = jsonObject.getJSONArray("data")
-                        var update: Update
-                        for (i in 0 until jsonArray.length()) {
-                            val dataObject = jsonArray.getJSONObject(i)
-                            update = Update(dataObject.getString("name"), dataObject.getString("imageurl"))
-                            activity!!.updateList = ArrayList()
-                            activity.updateList!!.add(update)
-                        }
-                        if (activity!!.activity != null){
-                            activity.sliderAdapter = SliderAdapter(activity.activity, activity.updateList!!)
-                            activity.sliderAdapter!!.setItems(activity.updateList)
-                            activity.activity!!.runOnUiThread {
-                                activity.binding.indicator.setupWithViewPager(activity.binding.viewPager, true)
-                                activity.binding.viewPager.adapter = activity.sliderAdapter
-                                //activity.sliderAdapter!!.notifyDataSetChanged()
-                            }
-                        }
-                    } else {
-                        val msg = jsonResponse.getString("message")
-                        if (activity!!.activity != null) {
-                            activity.activity!!.runOnUiThread { Toast.makeText(activity.context, msg, Toast.LENGTH_SHORT).show() }
-                        }
-                    }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
+        CoroutineScope(Dispatchers.IO).launch {
+            //Do the POST request and get the response
+            val response = service.getUpdates()
+            if (response.isSuccessful) {
+                var update: Update
+                val obj = JSONObject(response.body()?.string() ?: "{}")
+                val jsonArray = obj.getJSONArray("data")//JSONArray(obj.getJSONArray("data"))
+                //Log.e("jsonArray", jsonArray.toString())
+                for (i in 0 until jsonArray.length()) {
+                    val dataObject = jsonArray.getJSONObject(i)
+                    update = Update(dataObject.getString("name"), dataObject.getString("imageurl"))
+                    updateList = ArrayList()
+                    updateList?.add(update)
                 }
-                return null //reader.readLine();
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                urlConnection?.disconnect()
             }
-            try {
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-                Log.i("Result", "SLEEP ERROR")
-            }
-            return null
-        }
 
-        override fun onPostExecute(jsonObject: String?) {}
+            withContext(Dispatchers.Main) {
+                sliderAdapter = SliderAdapter(activity, updateList!!)
+                sliderAdapter?.setItems(updateList)
+                binding.indicator.setupWithViewPager(binding.viewPager, true)
+                binding.viewPager.adapter = sliderAdapter
+            }
+        }
     }
 
     companion object {

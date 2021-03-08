@@ -1,24 +1,24 @@
 package `in`.completecourse
 
 import `in`.completecourse.adapter.CompetitionUpdatesAdapter
-import `in`.completecourse.app.AppConfig
 import `in`.completecourse.databinding.ActivityDialogBinding
 import `in`.completecourse.model.UpdateItem
-import android.os.AsyncTask
+import `in`.completecourse.utils.APIService
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import org.json.JSONException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import retrofit2.Retrofit
 import java.io.*
-import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 class CompetitionUpdatesActivity : AppCompatActivity() {
@@ -32,94 +32,52 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
         binding = ActivityDialogBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
         binding.recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+
         val classStringFinal = intent.getStringExtra("class")
-        val dataObj = arrayOfNulls<String>(1)
-        dataObj[0] = classStringFinal
-        val getUpdates = GetUpdates(this@CompetitionUpdatesActivity)
-        getUpdates.execute(*dataObj)
+
+        if (classStringFinal != null) getCompetitionUpdates(classStringFinal)
     }
 
-    private class GetUpdates constructor(context: CompetitionUpdatesActivity) : AsyncTask<String?, String?, String?>() {
-        private val activityWeakReference: WeakReference<CompetitionUpdatesActivity> = WeakReference(context)
-        var item: UpdateItem? = null
+    private fun getCompetitionUpdates(classId:String){
 
-        override fun onPreExecute() {
-            val activity = activityWeakReference.get()
-        }
+        //Create Retrofit
+        val retrofit = Retrofit.Builder().baseUrl("http://completecourse.in/api/").build()
 
-        override fun doInBackground(vararg params: String?): String? {
-            val activity = activityWeakReference.get()
-            val urlString: String = AppConfig.URL_COMPETITION_UPDATES
-            val studentclass = params[0]
-            val url: URL
-            val stream: InputStream
-            var urlConnection: HttpURLConnection? = null
-            try {
-                url = URL(urlString)
-                urlConnection = url.openConnection() as HttpURLConnection
-                urlConnection.requestMethod = "POST"
-                urlConnection.doOutput = true
-                val data = (URLEncoder.encode("classid", "UTF-8")
-                        + "=" + URLEncoder.encode(studentclass, "UTF-8"))
-                urlConnection.connect()
-                val wr = OutputStreamWriter(urlConnection.outputStream)
-                wr.write(data)
-                wr.flush()
-                stream = urlConnection.inputStream
-                val reader = BufferedReader(InputStreamReader(stream, StandardCharsets.UTF_8), 8)
-                val resFromServer = reader.readLine()
-                val status: String
-                val jsonResponse: JSONObject
-                activity!!.updatesList = ArrayList<UpdateItem>()
-                try {
-                    jsonResponse = JSONObject(resFromServer)
-                    //Log.e("chatpterItem", String.valueOf(jsonResponse));
-                    status = jsonResponse.getString("status")
-                    if (status == "true") {
-                        val jsonObject = JSONObject(resFromServer)
-                        val jsonArray = jsonObject.getJSONArray("data")
-                        for (i in 0 until jsonArray.length()) {
-                            item = UpdateItem()
-                            val chapterObject = jsonArray.getJSONObject(i)
-                            item!!.updateKaName = chapterObject.getString("comptkanaam")
-                            item!!.updateKaLink = chapterObject.getString("referencelink")
-                            item!!.updateKaDesc = chapterObject.getString("details")
-                            item!!.serialNumber = (i + 1).toString() + "."
-                            activity.updatesList!!.add(item!!)
-                        }
-                    } else {
-                        val msg = jsonResponse.getString("message")
-                        activity.runOnUiThread { Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show() }
-                    }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
+        //Create Service
+        val service = retrofit.create(APIService::class.java)
+
+        //Create HashMap with fields
+        val params:HashMap<String?, RequestBody?> = HashMap()
+        params["classid"] = (classId).toRequestBody("text/plain".toMediaTypeOrNull())
+
+        CoroutineScope(Dispatchers.IO).launch {
+            //Do the POST request and get the response
+            val response = service.postCompetitionUpdates(params)
+            if (response.isSuccessful) {
+                var item: UpdateItem
+                val obj = JSONObject(response.body()?.string() ?: "{}")
+                val jsonArray = obj.getJSONArray("data")//JSONArray(obj.getJSONArray("data"))
+                updatesList = ArrayList<UpdateItem>()
+                for (i in 0 until jsonArray.length()) {
+                    item = UpdateItem()
+                    val chapterObject = jsonArray.getJSONObject(i)
+                    item.updateKaName = chapterObject.getString("comptkanaam")
+                    item.updateKaLink = chapterObject.getString("referencelink")
+                    item.updateKaDesc = chapterObject.getString("details")
+                    item.serialNumber = (i + 1).toString() + "."
+                    updatesList?.add(item)
                 }
-                return null //reader.readLine();
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                urlConnection?.disconnect()
             }
-            try {
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-                Log.i("Result", "SLEEP ERROR")
+            else{
+                Log.e("RETROFIT_ERROR", response.code().toString())
             }
-            return null
-        }
 
-        override fun onPostExecute(jsonObject: String?) {
-            val activity = activityWeakReference.get()
-            /*
-            if (activity!!.pDialog!!.isShowing) {
-                activity.pDialog!!.dismiss()
+            withContext(Dispatchers.Main){
+                adapter = CompetitionUpdatesAdapter(this@CompetitionUpdatesActivity, updatesList)
+                binding.recyclerView.adapter = adapter
             }
-             */
-            activity?.adapter = CompetitionUpdatesAdapter(activity!!, activity.updatesList)
-            activity.binding.recyclerView.adapter = activity.adapter
         }
-
     }
 }

@@ -1,6 +1,5 @@
 package `in`.completecourse.helper
 
-import `in`.completecourse.BuildConfig
 import `in`.completecourse.R
 import android.app.Activity
 import android.content.Context
@@ -11,10 +10,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
 import android.view.WindowManager
-import android.widget.RatingBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView

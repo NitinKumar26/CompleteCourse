@@ -42,7 +42,7 @@ class WelcomeActivity : AppCompatActivity() {
         val myViewPagerAdapter = MyViewPagerAdapter()
         binding.viewPager.adapter = myViewPagerAdapter
         binding.viewPager.addOnPageChangeListener(viewPagerPageChangeListener)
-        binding.btnSkip.setOnClickListener { v: View? ->
+        binding.btnSkip.setOnClickListener {
             val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()

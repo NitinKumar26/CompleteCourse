@@ -1,7 +1,6 @@
 package `in`.completecourse.fragment.authFragment
 
 import `in`.completecourse.MainActivity
-import `in`.completecourse.databinding.FragmentEasyLoginBinding
 import `in`.completecourse.databinding.FragmentOtpVerifyBinding
 import `in`.completecourse.helper.PrefManager
 import android.content.Intent
@@ -12,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.gms.tasks.TaskExecutors
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth

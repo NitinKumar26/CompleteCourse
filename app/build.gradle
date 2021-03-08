@@ -14,7 +14,7 @@ android {
         applicationId "in.completecourse"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 39
+        versionCode 40
         versionName "2.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         android.defaultConfig.vectorDrawables.useSupportLibrary true
@@ -96,7 +96,7 @@ dependencies {
     //Okhttp3 for the POST requests
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     //Gson (To convert raw JSON to pretty JSON)
-    implementation 'com.google.code.gson:gson:2.8.6'
+    //implementation 'com.google.code.gson:gson:2.8.6'
 
     //Google Play Services Auth Library
     implementation 'com.google.android.gms:play-services-auth:19.0.0'

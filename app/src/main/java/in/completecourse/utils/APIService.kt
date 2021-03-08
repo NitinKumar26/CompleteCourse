@@ -17,6 +17,21 @@ interface APIService {
     @POST("chapters.php")
     suspend fun postClassAndSubjectCode(@PartMap params:HashMap<String?, RequestBody?>): Response<ResponseBody>
 
+    @Multipart
+    @POST("competition.php")
+    suspend fun postCompetitionUpdates(@PartMap params:HashMap<String?, RequestBody?>): Response<ResponseBody>
+
+    @GET("newarrivals.php")
+    suspend fun getNewArrivals(): Response<ResponseBody>
+
+    @GET("notifications.php")
+    suspend fun getNotifications(): Response<ResponseBody>
+
+    @GET("updates.php")
+    suspend fun getUpdates(): Response<ResponseBody>
+
+
+
     /*
     @GET("sizes")
     fun loadSizes(): Call<List<Size?>?>?
