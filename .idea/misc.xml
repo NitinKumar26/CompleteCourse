@@ -3,9 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/layout/activity_dialog.xml" value="0.3212962962962963" />
         <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/layout/activity_main.xml" value="0.21784420289855072" />
         <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/layout/activity_subject.xml" value="0.22" />
         <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/layout/fragment_class_details.xml" value="0.21467391304347827" />
+        <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/layout/fragment_easy_login.xml" value="0.3212962962962963" />
         <entry key="..\:/Android Projects/CompleteCourse/app/src/main/res/xml/network_security_config.xml" value="0.28306159420289856" />
       </map>
     </option>

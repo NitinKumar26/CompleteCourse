@@ -30,8 +30,6 @@ interface APIService {
     @GET("updates.php")
     suspend fun getUpdates(): Response<ResponseBody>
 
-
-
     /*
     @GET("sizes")
     fun loadSizes(): Call<List<Size?>?>?
