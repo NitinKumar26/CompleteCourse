@@ -70,6 +70,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
                     updatesList?.add(item)
                 }
             }
+
             else{
                 Log.e("RETROFIT_ERROR", response.code().toString())
             }
@@ -78,6 +79,7 @@ class CompetitionUpdatesActivity : AppCompatActivity() {
                 adapter = CompetitionUpdatesAdapter(this@CompetitionUpdatesActivity, updatesList)
                 binding.recyclerView.adapter = adapter
             }
+
         }
     }
 }

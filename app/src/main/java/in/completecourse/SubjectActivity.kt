@@ -37,7 +37,7 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener, ClassChapters
     var spinPosition:String? = null
 
     private lateinit var binding: ActivitySubjectBinding
-    val mRecyclerViewItems: MutableList<Any> = ArrayList()
+    private val mRecyclerViewItems: MutableList<Any> = ArrayList()
     private var adapter: ClassChaptersAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,12 +70,8 @@ class SubjectActivity : AppCompatActivity(), View.OnClickListener, ClassChapters
                 subjectString = when {
                     classString.equals(ListConfig.classCode[0]) -> { ListConfig.subjectCodeNinth[i % 4] }
                     classString.equals(ListConfig.classCode[1]) -> { ListConfig.subjectCodeTenth[i % 4] }
-                    classString.equals(ListConfig.classCode[2]) -> { if (spinPosition.equals("4")) {
-                        ListConfig.subjectCodeElevenEnglish[i % 4] } else { ListConfig.subjectCodeEleven[i % 4] }
-                    }else -> {
-                        if (spinPosition.equals("5")){ ListConfig.subjectCodeTwelveEnglish[i % 4] }
-                        else { ListConfig.subjectCodeTwelve[i % 4] }
-                    }
+                    classString.equals(ListConfig.classCode[2]) -> { ListConfig.subjectCodeEleven[i % 4] }
+                    else -> { ListConfig.subjectCodeTwelve[i % 4] }
                 }
 
                 getChapters(classString!!, subjectString!!)

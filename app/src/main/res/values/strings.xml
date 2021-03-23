@@ -86,4 +86,7 @@
     <string name="install">Install</string>
     <string name="verify_mobile_number">Verify Mobile Number</string>
     <string name="not_provided">Not Provided</string>
+    <!--
+    <string name="default_web_client_id">225728743365-mbgvbth7rglufp23a2ttqb111h6k2aeo.apps.googleusercontent.com</string>
+    -->
 </resources>

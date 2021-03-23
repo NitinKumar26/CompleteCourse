@@ -39,7 +39,7 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
         binding.layoutMaths1112English.setOnClickListener(this)
         binding.layoutBiologyEnglish.setOnClickListener(this)
 
-        val spinnerItemsArray:Array<String> = arrayOf("9", "10", "11", "12", "11", "12")
+        val spinnerItemsArray:Array<String> = arrayOf("9", "10", "11", "12")
         val spinnerAdapter = SpinAdapter(this, R.layout.spinner_row, spinnerItemsArray)
 
         binding.classSelection.adapter = spinnerAdapter
@@ -188,66 +188,6 @@ class SearchActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     intent.putExtra("classCode", ListConfig.classCode[1])
                     intent.putExtra("subjectCode", ListConfig.subjectCodeTenth[3])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                }
-            }
-            R.id.layout_physicsEnglish -> {
-                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
-                intent = Intent(this@SearchActivity, SubjectActivity::class.java)
-                if (classString == 4) {
-                    intent.putExtra("classCode", ListConfig.classCode[2])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeElevenEnglish[0])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                } else {
-                    intent.putExtra("classCode", ListConfig.classCode[3])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeTwelveEnglish[0])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                }
-            }
-            R.id.layout_chemistryEnglish -> {
-                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
-                intent = Intent(this@SearchActivity, SubjectActivity::class.java)
-                if (classString == 4) {
-                    intent.putExtra("classCode", ListConfig.classCode[2])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeElevenEnglish[1])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                } else {
-                    intent.putExtra("classCode", ListConfig.classCode[3])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeTwelveEnglish[1])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                }
-            }
-            R.id.layout_maths_11_12English -> {
-                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
-                intent = Intent(this@SearchActivity, SubjectActivity::class.java)
-                if (classString == 4) {
-                    intent.putExtra("classCode", ListConfig.classCode[2])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeElevenEnglish[2])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                } else {
-                    intent.putExtra("classCode", ListConfig.classCode[3])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeTwelveEnglish[2])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                }
-            }
-            R.id.layout_biologyEnglish -> {
-                //if (mInterstitialAd!!.isLoaded) mInterstitialAd!!.show()
-                intent = Intent(this@SearchActivity, SubjectActivity::class.java)
-                if (classString == 4) {
-                    intent.putExtra("classCode", ListConfig.classCode[2])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeElevenEnglish[3])
-                    intent.putExtra("spinPosition", classString.toString())
-                    startActivity(intent)
-                } else {
-                    intent.putExtra("classCode", ListConfig.classCode[3])
-                    intent.putExtra("subjectCode", ListConfig.subjectCodeTwelveEnglish[3])
                     intent.putExtra("spinPosition", classString.toString())
                     startActivity(intent)
                 }

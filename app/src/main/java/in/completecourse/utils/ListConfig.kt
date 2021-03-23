@@ -21,7 +21,7 @@ object ListConfig {
     val subjectCodeEleven = arrayOf("7", "9", "5", "11")
     val subjectCodeTwelve = arrayOf("8", "10", "6", "12")
 
-    val subjectCodeElevenEnglish = arrayOf("18", "19", "17", "20")
+    //val subjectCodeElevenEnglish = arrayOf("18", "19", "17", "20")
 
-    val subjectCodeTwelveEnglish = arrayOf("22", "23", "21", "24")
+    //val subjectCodeTwelveEnglish = arrayOf("22", "23", "21", "24")
 }

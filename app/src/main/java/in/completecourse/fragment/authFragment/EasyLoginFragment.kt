@@ -106,7 +106,8 @@ class EasyLoginFragment : Fragment() {
                 //Google Sign in failed update the UI accordingly
                 if (pDialog!!.isShowing) pDialog!!.dismiss()
                 Toast.makeText(context, "Sign In Failed", Toast.LENGTH_SHORT).show()
-                Log.w("LoginActivity", "Google Sign in Failed", e)
+                //Log.w("LoginActivity", "Google Sign in Failed", e)
+                Log.d("GoogleSignInError", e.message.toString())
             }
         }
     }
